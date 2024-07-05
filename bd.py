@@ -28,5 +28,13 @@ c.execute('''CREATE TABLE IF NOT EXISTS Заказы
 c.execute('''CREATE TABLE IF NOT EXISTS Документы
                  (id INTEGER PRIMARY KEY AUTOINCREMENT, Название VARCHAR, Тип VARCHAR, Дата_создания DATETIME, Содержание VARCHAR)''')
 
+c.execute('''CREATE TABLE IF NOT EXISTS Товар_в_заказе
+                 (id INTEGER PRIMARY KEY AUTOINCREMENT, Заказ_id VARCHAR, Товар_id VARCHAR, Количество INTAGER,
+                 FOREIGN KEY(Заказ_id) REFERENCES Заказы(id), FOREIGN KEY(Товар_id) REFERENCES Товары(id))''')
+
+c.execute('''CREATE TABLE IF NOT EXISTS Товар_Склад
+                 (id INTEGER PRIMARY KEY AUTOINCREMENT, Товар_id VARCHAR, Склад_id VARCHAR, Количество INTAGER,
+                 FOREIGN KEY(Товар_id) REFERENCES Товары(id), FOREIGN KEY(Склад_id) REFERENCES Склады(id))''')
+
 conn.commit()
 conn.close()
