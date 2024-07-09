@@ -1,5 +1,6 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 import testmagbuywind
+import sqlite3
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
@@ -23,19 +24,22 @@ class Ui_Dialog(object):
         self.tableWidget = QtWidgets.QTableWidget(Dialog)
         self.tableWidget.setGeometry(QtCore.QRect(70, 280, 961, 421))
         self.tableWidget.setObjectName("tableWidget")
-        self.tableWidget.setColumnCount(6)
-        self.tableWidget.setRowCount(10)
+        self.tableWidget.setColumnCount(7)
+        self.tableWidget.setRowCount(0)
 
         self.tableWidget.setHorizontalHeaderLabels([
-            "Вид транзакции", "Клиент", "Ответственное лицо", "Дата транзакции", "Статус транзакции", "Комментарий"])
+            "Вид транзакции", "Клиент", "Артикул товара", "Ответственное лицо", "Дата", "Время", "Статус транзакции"])
 
         self.tableWidget.horizontalHeader().setStretchLastSection(True)
-        self.tableWidget.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
+        self.tableWidget.resizeColumnToContents(3)
+
 
         self.retranslateUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
         self.pushButton_4.clicked.connect(self.open_testmagbuywind)
+
+        self.load_data()
 
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
@@ -51,6 +55,19 @@ class Ui_Dialog(object):
         self.ui_buy = testmagbuywind.Ui_Dialog()
         self.ui_buy.setupUi(self.buy_window)
         self.buy_window.show()
+
+    def load_data(self):
+        conn = sqlite3.connect('crm.db')
+        c = conn.cursor()
+        c.execute('SELECT * FROM Заказы')
+        rows = c.fetchall()
+
+        self.tableWidget.setRowCount(len(rows))
+        for row_idx, row_data in enumerate(rows):
+            for col_idx, col_data in enumerate(row_data):
+                self.tableWidget.setItem(row_idx, col_idx, QtWidgets.QTableWidgetItem(str(col_data)))
+
+        conn.close()
 
 
 if __name__ == "__main__":
