@@ -35,6 +35,8 @@ class Ui_Dialog(object):
         self.retranslateUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
+        self.pushButton_4.clicked.connect(self.open_testmagbuywind)
+
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
         Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
@@ -43,6 +45,12 @@ class Ui_Dialog(object):
         self.pushButton_3.setText(_translate("Dialog", "Добавить клиента"))
         self.pushButton_4.setText(_translate("Dialog", "Новая транзакция"))
         self.lineEdit.setPlaceholderText(_translate("Dialog", "Поиск транзакций"))
+
+    def open_testmagbuywind(self):
+        self.buy_window = QtWidgets.QDialog()
+        self.ui_buy = testmagbuywind.Ui_Dialog()
+        self.ui_buy.setupUi(self.buy_window)
+        self.buy_window.show()
 
 
 if __name__ == "__main__":
