@@ -1,5 +1,5 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
-
+import testmagbuywind
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
@@ -27,7 +27,7 @@ class Ui_Dialog(object):
         self.tableWidget.setRowCount(10)
 
         self.tableWidget.setHorizontalHeaderLabels([
-            "Действие", "Клиент", "Ответственное лицо", "Дата транзакции", "Статус транзакции", "Комментарий"])
+            "Вид транзакции", "Клиент", "Ответственное лицо", "Дата транзакции", "Статус транзакции", "Комментарий"])
 
         self.tableWidget.horizontalHeader().setStretchLastSection(True)
         self.tableWidget.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
@@ -38,10 +38,10 @@ class Ui_Dialog(object):
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
         Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
-        self.pushButton.setText(_translate("Dialog", "Добавить"))
-        self.pushButton_2.setText(_translate("Dialog", "Оформить покупку"))
-        self.pushButton_3.setText(_translate("Dialog", "Перемещение"))
-        self.pushButton_4.setText(_translate("Dialog", "Заглушка"))
+        self.pushButton.setText(_translate("Dialog", "Добавить товар"))
+        self.pushButton_2.setText(_translate("Dialog", "Добавить склад"))
+        self.pushButton_3.setText(_translate("Dialog", "Добавить клиента"))
+        self.pushButton_4.setText(_translate("Dialog", "Новая транзакция"))
         self.lineEdit.setPlaceholderText(_translate("Dialog", "Поиск транзакций"))
 
 
