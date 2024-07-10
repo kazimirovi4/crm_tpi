@@ -155,13 +155,13 @@ class Ui_Dialog(object):
         conn = sqlite3.connect('crm.db')
         c = conn.cursor()
 
-        if index == 0:  # Товар
+        if index == 0:
             c.execute("DELETE FROM Товары WHERE ID = ?", (item_id,))
-        elif index == 1:  # Склад
+        elif index == 1:
             c.execute("DELETE FROM Склады WHERE ID = ?", (item_id,))
-        elif index == 2:  # Клиент
+        elif index == 2:
             c.execute("DELETE FROM Клиенты WHERE ID = ?", (item_id,))
-        elif index == 3:  # Документ
+        elif index == 3:
             c.execute("DELETE FROM Документы WHERE ID = ?", (item_id,))
 
         conn.commit()
