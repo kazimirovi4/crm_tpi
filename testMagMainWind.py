@@ -29,7 +29,7 @@ class Ui_Dialog(object):
         self.tableWidget.setRowCount(0)
 
         self.tableWidget.setHorizontalHeaderLabels([
-            "Вид транзакции", "Клиент", "Артикул товара", "Ответственное лицо", "Дата", "Время", "Статус транзакции"])
+            'Транзакция', "Клиент", "Артикул товара", "Ответственное лицо", "Дата", "Время", "Статус транзакции"])
 
         self.tableWidget.horizontalHeader().setStretchLastSection(True)
         self.tableWidget.resizeColumnToContents(3)
@@ -68,8 +68,16 @@ class Ui_Dialog(object):
     def load_data(self):
         conn = sqlite3.connect('crm.db')
         c = conn.cursor()
-        c.execute('SELECT * FROM Заказы')
+        query = '''
+            SELECT Заказы.id, Клиенты.ФИО, Заказы.Товар_арт, admins.id, Заказы.Дата_создания, Заказы.Время_создания, Заказы.Статус
+            FROM Заказы
+            JOIN Клиенты ON Заказы.Клиент_id = Клиенты.id
+            JOIN admins ON Заказы.admin_id = admins.id
+            JOIN Товары ON Заказы.Товар_арт = Товары.Артикул
+            '''
+        c.execute(query)
         rows = c.fetchall()
+
 
         self.tableWidget.setRowCount(len(rows))
         for row_idx, row_data in enumerate(rows):

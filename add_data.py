@@ -108,5 +108,6 @@ def add_order(client_name, product_name, admin_login, status):
 # add_order(1, 'LP1001', 1, 'В_пути')
 # add_category('Молочная продукция')
 # add_product('Молоко', 'LP1001', 1, 'Бутыла 1л', '!!!!!!!!!')
-add_product('Телефон', 'Электроника', '4GB RAM, 64GB ROM', 'phone.jpg')
-add_order('Иван Иванов', 'Телефон', 'admin', 'Создан')
+# add_product('Телефон', 'Электроника', '4GB RAM, 64GB ROM', 'phone.jpg')
+# add_order('Иван Иванов', 'Телефон', 'admin', 'Создан')
+# add_client('Johan', 'Moscow', '+375298888888')
