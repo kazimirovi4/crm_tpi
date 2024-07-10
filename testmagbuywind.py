@@ -109,6 +109,7 @@ class Ui_Dialog(object):
 
         self.resize_table_columns(self.tableWidget)
         self.resize_table_columns(self.tableWidget_2)
+        self.lineEdit_2.textChanged.connect(self.filter_table)
 
     def resize_table_columns(self, table):
         table.resizeColumnsToContents()
@@ -126,6 +127,18 @@ class Ui_Dialog(object):
         self.label_2.setText(_translate("Dialog", "Цена"))
         self.pushButton_5.setText(_translate("Dialog", "Поиск"))
         self.checkBox.setText(_translate("Dialog", "Хотите ли вы просмотреть счет после сохранения операции?"))
+
+
+    def filter_table(self):
+        filter_text = self.lineEdit.text().lower()
+        for row in range(self.tableWidget.rowCount()):
+            match = False
+            for col in range(self.tableWidget.columnCount()):
+                item = self.tableWidget.item(row, col)
+                if item and filter_text in item.text().lower():
+                    match = True
+                    break
+            self.tableWidget.setRowHidden(row, not match)
 
 
 if __name__ == "__main__":
