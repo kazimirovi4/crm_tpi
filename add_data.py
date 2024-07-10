@@ -83,6 +83,14 @@ def get_product_article(product_name):
     return result[0] if result else None
 
 
+def add_admin(login, password, level):
+    conn = sqlite3.connect('crm.db')
+    c = conn.cursor()
+    c.execute("INSERT INTO admins (login, pass, level) VALUES (?, ?, ?)", (login, password, level))
+    result = c.fetchone()
+    conn.close()
+    return result[0] if result else None
+
 def get_admin_id(admin_login):
     conn = sqlite3.connect('crm.db')
     c = conn.cursor()
@@ -104,10 +112,10 @@ def add_order(client_name, product_name, admin_login, status):
     conn.close()
 
 # add_product('Телефон', 'Электроника', '4GB RAM, 64GB ROM', 'phone.jpg')
-# add_admin('admin1', 'admin', 'superuser')
+add_admin('admin', 'admin', 'superuser')
 # add_order(1, 'LP1001', 1, 'В_пути')
 # add_category('Молочная продукция')
 # add_product('Молоко', 'LP1001', 1, 'Бутыла 1л', '!!!!!!!!!')
-# add_product('Телефон', 'Электроника', '4GB RAM, 64GB ROM', 'phone.jpg')
-# add_order('Иван Иванов', 'Телефон', 'admin', 'Создан')
+add_product('Телефон', 'Электроника', '4GB RAM, 64GB ROM', 'phone.jpg')
+add_order('Иван Иванов', 'Телефон', 'admin', 'Создан')
 add_client('Johan', 'Moscow', '+375298888888')
