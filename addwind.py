@@ -1,5 +1,6 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 import sqlite3
+from add_data import add_product, add_warehouse, add_client, add_document
 
 
 class Ui_Dialog(object):
@@ -56,12 +57,15 @@ class Ui_Dialog(object):
         self.pushButton_4 = QtWidgets.QPushButton(Dialog)
         self.pushButton_4.setGeometry(QtCore.QRect(990, 820, 93, 28))
         self.pushButton_4.setObjectName("pushButton_4")
+        self.pushButton_4.clicked.connect(self.save_data)
+
         self.label = QtWidgets.QLabel(Dialog)
         self.label.setGeometry(QtCore.QRect(40, 220, 55, 16))
         self.label.setObjectName("label")
         self.pushButton_5 = QtWidgets.QPushButton(Dialog)
         self.pushButton_5.setGeometry(QtCore.QRect(922, 270, 131, 28))
         self.pushButton_5.setObjectName("pushButton_5")
+        self.pushButton_5.clicked.connect(self.delete_row)
 
         self.lineEdit.setPlaceholderText("Ответственное лицо")
         self.lineEdit_2.setPlaceholderText("Фильтр")
@@ -120,6 +124,50 @@ class Ui_Dialog(object):
             self.tableWidget_2.setItem(0, col_idx, QtWidgets.QTableWidgetItem(""))
 
         conn.close()
+
+    def save_data(self):
+        index = self.comboBox.currentIndex()
+        data = []
+        for col in range(self.tableWidget_2.columnCount()):
+            item = self.tableWidget_2.item(0, col)
+            data.append(item.text() if item else '')
+
+        if index == 0:
+            add_product(data[0], data[1], data[2], data[3])
+        elif index == 1:
+            add_warehouse(data[0], data[1], data[2])
+        elif index == 2:
+            add_client(data[0], data[1], data[2])
+        elif index == 3:
+            add_document(data[0], data[1], data[2], data[3])
+
+        self.load_data()
+
+    def delete_row(self):
+        index = self.comboBox.currentIndex()
+        selected_row = self.tableWidget.currentRow()
+
+        if selected_row == -1:
+            return
+
+        item_id = self.tableWidget.item(selected_row, 0).text()
+
+        conn = sqlite3.connect('crm.db')
+        c = conn.cursor()
+
+        if index == 0:  # Товар
+            c.execute("DELETE FROM Товары WHERE ID = ?", (item_id,))
+        elif index == 1:  # Склад
+            c.execute("DELETE FROM Склады WHERE ID = ?", (item_id,))
+        elif index == 2:  # Клиент
+            c.execute("DELETE FROM Клиенты WHERE ID = ?", (item_id,))
+        elif index == 3:  # Документ
+            c.execute("DELETE FROM Документы WHERE ID = ?", (item_id,))
+
+        conn.commit()
+        conn.close()
+
+        self.load_data()
 
 
 if __name__ == "__main__":
