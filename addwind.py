@@ -73,6 +73,7 @@ class Ui_Dialog(object):
         self.retranslateUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
+        self.lineEdit_2.textChanged.connect(self.filter_table)
         self.load_data()
 
     def retranslateUi(self, Dialog):
@@ -82,6 +83,17 @@ class Ui_Dialog(object):
         self.pushButton_3.setText(_translate("Dialog", "Отмена"))
         self.pushButton_4.setText(_translate("Dialog", "Сохранить"))
         self.pushButton_5.setText(_translate("Dialog", "Удалить строку"))
+
+    def filter_table(self):
+        filter_text = self.lineEdit_2.text().lower()
+        for row in range(self.tableWidget.rowCount()):
+            match = False
+            for col in range(self.tableWidget.columnCount()):
+                item = self.tableWidget.item(row, col)
+                if item and filter_text in item.text().lower():
+                    match = True
+                    break
+            self.tableWidget.setRowHidden(row, not match)
 
     def updateTables(self):
         self.load_data()
@@ -146,15 +158,11 @@ class Ui_Dialog(object):
     def delete_row(self):
         index = self.comboBox.currentIndex()
         selected_row = self.tableWidget.currentRow()
-
         if selected_row == -1:
             return
-
         item_id = self.tableWidget.item(selected_row, 0).text()
-
         conn = sqlite3.connect('crm.db')
         c = conn.cursor()
-
         if index == 0:
             c.execute("DELETE FROM Товары WHERE ID = ?", (item_id,))
         elif index == 1:
@@ -163,11 +171,10 @@ class Ui_Dialog(object):
             c.execute("DELETE FROM Клиенты WHERE ID = ?", (item_id,))
         elif index == 3:
             c.execute("DELETE FROM Документы WHERE ID = ?", (item_id,))
-
         conn.commit()
         conn.close()
-
         self.load_data()
+
 
 
 if __name__ == "__main__":
