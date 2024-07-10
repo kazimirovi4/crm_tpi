@@ -38,6 +38,7 @@ class Ui_Dialog(object):
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
         self.pushButton_4.clicked.connect(self.open_testmagbuywind)
+        self.lineEdit.textChanged.connect(self.filter_table)
 
         self.load_data()
 
@@ -68,6 +69,17 @@ class Ui_Dialog(object):
                 self.tableWidget.setItem(row_idx, col_idx, QtWidgets.QTableWidgetItem(str(col_data)))
 
         conn.close()
+
+    def filter_table(self):
+        filter_text = self.lineEdit.text().lower()
+        for row in range(self.tableWidget.rowCount()):
+            match = False
+            for col in range(self.tableWidget.columnCount()):
+                item = self.tableWidget.item(row, col)
+                if item and filter_text in item.text().lower():
+                    match = True
+                    break
+            self.tableWidget.setRowHidden(row, not match)
 
 
 if __name__ == "__main__":
