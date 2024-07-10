@@ -110,4 +110,4 @@ def add_order(client_name, product_name, admin_login, status):
 # add_product('Молоко', 'LP1001', 1, 'Бутыла 1л', '!!!!!!!!!')
 # add_product('Телефон', 'Электроника', '4GB RAM, 64GB ROM', 'phone.jpg')
 # add_order('Иван Иванов', 'Телефон', 'admin', 'Создан')
-# add_client('Johan', 'Moscow', '+375298888888')
+add_client('Johan', 'Moscow', '+375298888888')
