@@ -1,5 +1,6 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 import testMagMainWind
+import sqlite3
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -54,14 +55,31 @@ class LoginWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.setupUi(self)
         self.pushButton_login.clicked.connect(self.check_login)
 
+    # def check_login(self):
+    #     username = self.lineEdit_username.text()
+    #     password = self.lineEdit_password.text()
+    #
+    #     if username == "111" and password == "111":
+    #         self.open_main_window()
+    #     else:
+    #         QtWidgets.QMessageBox.critical(self, "Ошибка", "Неверный логин или пароль")
+
     def check_login(self):
         username = self.lineEdit_username.text()
         password = self.lineEdit_password.text()
 
-        if username == "111" and password == "111":
+        if self.validate_login(username, password):
             self.open_main_window()
         else:
             QtWidgets.QMessageBox.critical(self, "Ошибка", "Неверный логин или пароль")
+
+    def validate_login(self, username, password):
+        connection = sqlite3.connect('crm.db')
+        cursor = connection.cursor()
+        cursor.execute("SELECT * FROM admins WHERE login=? AND pass=?", (username, password))
+        result = cursor.fetchone()
+        connection.close()
+        return result is not None
 
     def open_main_window(self):
         self.main_window = QtWidgets.QDialog()
