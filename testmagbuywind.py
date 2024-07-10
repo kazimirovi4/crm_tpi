@@ -109,6 +109,8 @@ class Ui_Dialog(object):
 
         self.resize_table_columns(self.tableWidget)
         self.resize_table_columns(self.tableWidget_2)
+        self.lineEdit_2.textChanged.connect(self.filter_table)
+        self.pushButton_5.clicked.connect(self.filter_by_price)
 
     def resize_table_columns(self, table):
         table.resizeColumnsToContents()
@@ -126,6 +128,37 @@ class Ui_Dialog(object):
         self.label_2.setText(_translate("Dialog", "Цена"))
         self.pushButton_5.setText(_translate("Dialog", "Поиск"))
         self.checkBox.setText(_translate("Dialog", "Хотите ли вы просмотреть счет после сохранения операции?"))
+
+
+    def filter_table(self):
+        filter_text = self.lineEdit.text().lower()
+        for row in range(self.tableWidget.rowCount()):
+            match = False
+            for col in range(self.tableWidget.columnCount()):
+                item = self.tableWidget.item(row, col)
+                if item and filter_text in item.text().lower():
+                    match = True
+                    break
+            self.tableWidget.setRowHidden(row, not match)
+
+    def filter_by_price(self):
+        min_price_text = self.lineEdit_3.text()
+        max_price_text = self.lineEdit_4.text()
+
+        min_price = float(min_price_text) if min_price_text else None
+        max_price = float(max_price_text) if max_price_text else None
+
+        for row in range(self.tableWidget.rowCount()):
+            item = self.tableWidget.item(row, 6)
+            if item:
+                try:
+                    price = float(item.text())
+                    hide_row = False
+                    if (min_price is not None and price < min_price) or (max_price is not None and price > max_price):
+                        hide_row = True
+                    self.tableWidget.setRowHidden(row, hide_row)
+                except ValueError:
+                    self.tableWidget.setRowHidden(row, True)
 
 
 if __name__ == "__main__":
