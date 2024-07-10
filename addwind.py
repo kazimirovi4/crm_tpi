@@ -1,4 +1,5 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
+import sqlite3
 
 
 class Ui_Dialog(object):
@@ -25,26 +26,30 @@ class Ui_Dialog(object):
         self.pushButton = QtWidgets.QPushButton(Dialog)
         self.pushButton.setGeometry(QtCore.QRect(670, 270, 141, 28))
         self.pushButton.setObjectName("pushButton")
+        self.pushButton.clicked.connect(self.load_data)
+
         self.tableWidget = QtWidgets.QTableWidget(Dialog)
         self.tableWidget.setGeometry(QtCore.QRect(30, 310, 1051, 271))
         self.tableWidget.setObjectName("tableWidget")
         self.tableWidget.setColumnCount(6)
-        self.tableWidget.setRowCount(3)
+        self.tableWidget.setRowCount(6)
         self.tableWidget.setHorizontalHeaderLabels([
-            "Артикул", "Наименование", "Категория", "Характеристики","Картинка", "Количество заказа"
+            "ID Товара", "Наименование товара", "Артикул", "Категория", "Характеристики", "Картинка"
         ])
         header = self.tableWidget.horizontalHeader()
         header.setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
+
         self.tableWidget_2 = QtWidgets.QTableWidget(Dialog)
         self.tableWidget_2.setGeometry(QtCore.QRect(30, 610, 1051, 192))
         self.tableWidget_2.setObjectName("tableWidget_2")
-        self.tableWidget_2.setColumnCount(5)
+        self.tableWidget_2.setColumnCount(4)
         self.tableWidget_2.setRowCount(1)
         self.tableWidget_2.setHorizontalHeaderLabels([
-            "Наименование", "Категория", "Характеристики", "Картинка", "Количество заказа"
+            "Наименование товара", "Категория", "Характеристики", "Картинка"
         ])
         header_2 = self.tableWidget_2.horizontalHeader()
         header_2.setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
+
         self.pushButton_3 = QtWidgets.QPushButton(Dialog)
         self.pushButton_3.setGeometry(QtCore.QRect(870, 820, 93, 28))
         self.pushButton_3.setObjectName("pushButton_3")
@@ -64,6 +69,8 @@ class Ui_Dialog(object):
         self.retranslateUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
+        self.load_data()
+
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
         Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
@@ -73,67 +80,46 @@ class Ui_Dialog(object):
         self.pushButton_5.setText(_translate("Dialog", "Удалить строку"))
 
     def updateTables(self):
+        self.load_data()
+
+    def load_data(self):
         index = self.comboBox.currentIndex()
+        conn = sqlite3.connect('crm.db')
+        c = conn.cursor()
+
         if index == 0:
-            self.fillTableForProduct()
+            c.execute('SELECT * FROM Товары')
+            columns = ["ID Товара", "Наименование товара", "Артикул", "Категория", "Характеристики", "Картинка"]
+            columns_2 = ["Наименование товара", "Категория", "Характеристики", "Картинка"]
         elif index == 1:
-            self.fillTableForWarehouse()
+            c.execute('SELECT * FROM Склады')
+            columns = ["ID Склада", "Название", "Адрес", "Местоположение"]
+            columns_2 = ["Название", "Адрес", "Местоположение"]
         elif index == 2:
-            self.fillTableForClient()
+            c.execute('SELECT * FROM Клиенты')
+            columns = ["ID клиента", "ФИО", "Адрес", "Телефон"]
+            columns_2 = ["ФИО", "Адрес", "Телефон"]
         elif index == 3:
-            self.fillTableForDocuments()
+            c.execute('SELECT * FROM Документы')
+            columns = ["ID документа", "Название", "Тип", "Дата создания", "Описание"]
+            columns_2 = ["Название", "Тип", "Дата создания", "Описание"]
 
-    def fillTableForProduct(self):
-        self.tableWidget.setHorizontalHeaderLabels([
-            "Артикул", "Наименование", "Категория", "Характеристики", "Картинка", "Количество заказа"
-        ])
-        self.tableWidget.setRowCount(3)
-        self.tableWidget.setColumnCount(6)
+        rows = c.fetchall()
 
-        self.tableWidget_2.setHorizontalHeaderLabels([
-            "Наименование", "Категория", "Характеристики", "Картинка", "Количество заказа"
-        ])
+        self.tableWidget.setColumnCount(len(columns))
+        self.tableWidget.setHorizontalHeaderLabels(columns)
+        self.tableWidget.setRowCount(len(rows))
+        for row_idx, row_data in enumerate(rows):
+            for col_idx, col_data in enumerate(row_data):
+                self.tableWidget.setItem(row_idx, col_idx, QtWidgets.QTableWidgetItem(str(col_data)))
+
+        self.tableWidget_2.setColumnCount(len(columns_2))
+        self.tableWidget_2.setHorizontalHeaderLabels(columns_2)
         self.tableWidget_2.setRowCount(1)
-        self.tableWidget_2.setColumnCount(5)
+        for col_idx, col_data in enumerate(columns_2):
+            self.tableWidget_2.setItem(0, col_idx, QtWidgets.QTableWidgetItem(""))
 
-    def fillTableForWarehouse(self):
-        self.tableWidget.setHorizontalHeaderLabels([
-            "Складской номер", "Наименование", "Местоположение", "Вместимость", "Заполненность", "Ответственный"
-        ])
-        self.tableWidget.setRowCount(3)
-        self.tableWidget.setColumnCount(6)
-
-        self.tableWidget_2.setHorizontalHeaderLabels([
-            "Наименование", "Местоположение", "Вместимость", "Заполненность", "Ответственный"
-        ])
-        self.tableWidget_2.setRowCount(1)
-        self.tableWidget_2.setColumnCount(5)
-
-    def fillTableForClient(self):
-        self.tableWidget.setHorizontalHeaderLabels([
-            "ID клиента", "Имя", "Фамилия", "Email", "Телефон", "Адрес"
-        ])
-        self.tableWidget.setRowCount(3)
-        self.tableWidget.setColumnCount(6)
-
-        self.tableWidget_2.setHorizontalHeaderLabels([
-            "Имя", "Фамилия", "Email", "Телефон", "Адрес"
-        ])
-        self.tableWidget_2.setRowCount(1)
-        self.tableWidget_2.setColumnCount(5)
-
-    def fillTableForDocuments(self):
-        self.tableWidget.setHorizontalHeaderLabels([
-            "ID документа", "Тип", "Дата создания", "Статус", "Ответственный", "Описание"
-        ])
-        self.tableWidget.setRowCount(3)
-        self.tableWidget.setColumnCount(6)
-
-        self.tableWidget_2.setHorizontalHeaderLabels([
-            "Тип", "Дата создания", "Статус", "Ответственный", "Описание"
-        ])
-        self.tableWidget_2.setRowCount(1)
-        self.tableWidget_2.setColumnCount(5)
+        conn.close()
 
 
 if __name__ == "__main__":
