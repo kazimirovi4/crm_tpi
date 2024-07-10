@@ -25,9 +25,6 @@ class Ui_Dialog(object):
         self.pushButton = QtWidgets.QPushButton(Dialog)
         self.pushButton.setGeometry(QtCore.QRect(670, 270, 141, 28))
         self.pushButton.setObjectName("pushButton")
-        self.pushButton_2 = QtWidgets.QPushButton(Dialog)
-        self.pushButton_2.setGeometry(QtCore.QRect(520, 270, 93, 28))
-        self.pushButton_2.setObjectName("pushButton_2")
         self.tableWidget = QtWidgets.QTableWidget(Dialog)
         self.tableWidget.setGeometry(QtCore.QRect(30, 310, 1051, 271))
         self.tableWidget.setObjectName("tableWidget")
@@ -71,7 +68,6 @@ class Ui_Dialog(object):
         _translate = QtCore.QCoreApplication.translate
         Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
         self.pushButton.setText(_translate("Dialog", "Обновить"))
-        self.pushButton_2.setText(_translate("Dialog", "Поиск"))
         self.pushButton_3.setText(_translate("Dialog", "Отмена"))
         self.pushButton_4.setText(_translate("Dialog", "Сохранить"))
         self.pushButton_5.setText(_translate("Dialog", "Удалить строку"))

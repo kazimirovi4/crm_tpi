@@ -1,6 +1,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 import testmagbuywind
 import sqlite3
+import addwind
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
@@ -39,6 +40,7 @@ class Ui_Dialog(object):
 
         self.pushButton_4.clicked.connect(self.open_testmagbuywind)
         self.lineEdit.textChanged.connect(self.filter_table)
+        self.pushButton.clicked.connect(self.open_addwind)
 
         self.load_data()
 
@@ -56,6 +58,12 @@ class Ui_Dialog(object):
         self.ui_buy = testmagbuywind.Ui_Dialog()
         self.ui_buy.setupUi(self.buy_window)
         self.buy_window.show()
+
+    def open_addwind(self):
+        self.add_window = QtWidgets.QDialog()
+        self.ui_add = addwind.Ui_Dialog()
+        self.ui_add.setupUi(self.add_window)
+        self.add_window.show()
 
     def load_data(self):
         conn = sqlite3.connect('crm.db')
