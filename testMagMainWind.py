@@ -44,9 +44,9 @@ class Ui_Dialog(object):
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
         Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
-        self.pushButton.setText(_translate("Dialog", "Добавить товар"))
-        self.pushButton_2.setText(_translate("Dialog", "Добавить склад"))
-        self.pushButton_3.setText(_translate("Dialog", "Добавить клиента"))
+        self.pushButton.setText(_translate("Dialog", "Добавить"))
+        self.pushButton_2.setText(_translate("Dialog", "***"))
+        self.pushButton_3.setText(_translate("Dialog", "***"))
         self.pushButton_4.setText(_translate("Dialog", "Новая транзакция"))
         self.lineEdit.setPlaceholderText(_translate("Dialog", "Поиск транзакций"))
 
