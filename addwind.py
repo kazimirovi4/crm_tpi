@@ -32,10 +32,10 @@ class Ui_Dialog(object):
         self.tableWidget = QtWidgets.QTableWidget(Dialog)
         self.tableWidget.setGeometry(QtCore.QRect(30, 310, 1051, 271))
         self.tableWidget.setObjectName("tableWidget")
-        self.tableWidget.setColumnCount(6)
+        self.tableWidget.setColumnCount(7)
         self.tableWidget.setRowCount(6)
         self.tableWidget.setHorizontalHeaderLabels([
-            "ID Товара", "Наименование товара", "Артикул", "Категория", "Характеристики", "Картинка"
+            "ID Товара", "Наименование товара", "Артикул", "Категория", "Характеристики", "Картинка, Склад_id"
         ])
         header = self.tableWidget.horizontalHeader()
         header.setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
@@ -43,10 +43,10 @@ class Ui_Dialog(object):
         self.tableWidget_2 = QtWidgets.QTableWidget(Dialog)
         self.tableWidget_2.setGeometry(QtCore.QRect(30, 610, 1051, 192))
         self.tableWidget_2.setObjectName("tableWidget_2")
-        self.tableWidget_2.setColumnCount(4)
+        self.tableWidget_2.setColumnCount(5)
         self.tableWidget_2.setRowCount(1)
         self.tableWidget_2.setHorizontalHeaderLabels([
-            "Наименование товара", "Категория", "Характеристики", "Картинка"
+            "Наименование товара", "Категория", "Характеристики", "Картинка", 'Склад_id'
         ])
         header_2 = self.tableWidget_2.horizontalHeader()
         header_2.setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
@@ -105,8 +105,8 @@ class Ui_Dialog(object):
 
         if index == 0:
             c.execute('SELECT * FROM Товары')
-            columns = ["ID Товара", "Наименование товара", "Артикул", "Категория", "Характеристики", "Картинка"]
-            columns_2 = ["Наименование товара", "Категория", "Характеристики", "Картинка"]
+            columns = ["ID Товара", "Наименование товара", "Артикул", "Категория", "Характеристики", "Картинка", 'Склад_id']
+            columns_2 = ["Наименование товара", "Категория", "Характеристики", "Картинка", 'Склад_id']
         elif index == 1:
             c.execute('SELECT * FROM Склады')
             columns = ["ID Склада", "Название", "Адрес", "Местоположение"]
