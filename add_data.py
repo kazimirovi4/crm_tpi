@@ -25,15 +25,15 @@ def generate_unique_article():
     return str(uuid.uuid4())
 
 
-def add_product(name, category_name, characteristics, image):
+def add_product(name, category_name, characteristics, image, sklad_id):
     category_id = get_category_id(category_name)
     if not category_id:
         category_id = add_category(category_name)
     article = generate_unique_article()
     conn = sqlite3.connect('crm.db')
     c = conn.cursor()
-    c.execute("INSERT INTO Товары (Имя, Артикул, Категория_id, Характеристики, Картинка) VALUES(?, ?, ?, ?, ?)",
-              (name, article, category_id, characteristics, image))
+    c.execute("INSERT INTO Товары (Имя, Артикул, Категория_id, Характеристики, Картинка, Склад_id) VALUES(?, ?, ?, ?, ?, ?)",
+              (name, article, category_id, characteristics, image, sklad_id))
     conn.commit()
     conn.close()
 
@@ -114,7 +114,7 @@ def add_order(client_name, product_name, admin_login, status):
 # add_admin('admin', 'admin', 'superuser')
 # add_order(1, 'LP1001', 1, 'В_пути')
 # add_category('Молочная продукция')
-# add_product('Молоко', 'LP1001', 'Бутыла 1л', '1.jpg')
+# add_product('Творог', 'Молочная продукция', 'Пачка 200г.', '2.jpg', '1')
 # add_product('Телефон', 'Электроника', '4GB RAM, 64GB ROM', 'phone.jpg')
 # add_order('Johan', 'Телефон', 'admin', 'Создан')
 # add_client('Johan', 'Moscow', '+375298888888')
