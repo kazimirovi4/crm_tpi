@@ -34,9 +34,9 @@ class Ui_Dialog(object):
         self.tableWidget.setObjectName("tableWidget")
         self.tableWidget.setColumnCount(7)
         self.tableWidget.setRowCount(10)
-        self.tableWidget.setHorizontalHeaderLabels([
-            "ID Товара", "Наименование товара", "Артикул", "Категория", "Характеристики", "Картинка, Склад_id"
-        ])
+        # self.tableWidget.setHorizontalHeaderLabels([
+        #     "ID Товара", "Наименование товара", "Артикул", "Категория", "Характеристики", "Картинка, Склад_id"
+        # ])
         header = self.tableWidget.horizontalHeader()
         header.setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
 
@@ -45,9 +45,9 @@ class Ui_Dialog(object):
         self.tableWidget_2.setObjectName("tableWidget_2")
         self.tableWidget_2.setColumnCount(5)
         self.tableWidget_2.setRowCount(0)
-        self.tableWidget_2.setHorizontalHeaderLabels([
-            "Наименование товара", "Категория", "Характеристики", "Картинка", 'Склад_id'
-        ])
+        # self.tableWidget_2.setHorizontalHeaderLabels([
+        #     "Наименование товара", "Категория", "Характеристики", "Картинка", 'Склад_id'
+        # ])
         header_2 = self.tableWidget_2.horizontalHeader()
         header_2.setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
 
@@ -116,7 +116,7 @@ class Ui_Dialog(object):
         if index == 0:
             c.execute('SELECT * FROM Товары')
             columns = ["ID Товара", "Наименование товара", "Артикул", "Категория", "Цена", "Характеристики", "Картинка", "Склад_id"]
-            columns_2 = ["Наименование товара", "Категория", "Характеристики", "Картинка", "Цена", "Склад_id"]
+            columns_2 = ["Наименование товара", "Категория", "Цена", "Характеристики", "Картинка", "Склад_id"]
         elif index == 1:
             c.execute('SELECT * FROM Склады')
             columns = ["ID Склада", "Название", "Адрес", "Местоположение"]
@@ -159,7 +159,7 @@ class Ui_Dialog(object):
             data.append(item.text() if item else '')
 
         if index == 0:
-            add_product(data[0], data[1], data[2], data[3], data[4])
+            add_product(data[0], data[1], data[2], data[3], data[4], data[5])
         elif index == 1:
             add_warehouse(data[0], data[1], data[2])
         elif index == 2:

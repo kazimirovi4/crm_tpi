@@ -25,15 +25,15 @@ def generate_unique_article():
     return str(uuid.uuid4())
 
 
-def add_product(name, category_name, characteristics, image, sklad_id):
+def add_product(name, category_name, price, characteristics, image, sklad_id):
     category_id = get_category_id(category_name)
     if not category_id:
         category_id = add_category(category_name)
     article = generate_unique_article()
     conn = sqlite3.connect('crm.db')
     c = conn.cursor()
-    c.execute("INSERT INTO Товары (Имя, Артикул, Категория_id, Характеристики, Картинка, Склад_id) VALUES(?, ?, ?, ?, ?, ?)",
-              (name, article, category_id, characteristics, image, sklad_id))
+    c.execute("INSERT INTO Товары (Имя, Артикул, Категория_id, Цена, Характеристики, Картинка, Склад_id) VALUES(?, ?, ?, ?, ?, ?, ?)",
+              (name, article, category_id, price, characteristics, image, sklad_id))
     conn.commit()
     conn.close()
 
