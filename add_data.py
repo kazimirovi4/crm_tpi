@@ -47,6 +47,15 @@ def add_warehouse(name, address, coordinates):
     conn.close()
 
 
+def get_warehouse_id(warehouse_name):
+    conn = sqlite3.connect('crm.db')
+    c = conn.cursor()
+    c.execute("SELECT id FROM Склады WHERE Название = ?", (warehouse_name,))
+    result = c.fetchone()
+    conn.close()
+    return result[0] if result else None
+
+
 def add_client(full_name, address, phone):
     conn = sqlite3.connect('crm.db')
     c = conn.cursor()
@@ -83,6 +92,15 @@ def get_product_article(product_name):
     return result[0] if result else None
 
 
+def get_product_id(product_name):
+    conn = sqlite3.connect('crm.db')
+    c = conn.cursor()
+    c.execute("SELECT id FROM Товары WHERE Имя = ?", (product_name,))
+    result = c.fetchone()
+    conn.close()
+    return result[0] if result else None
+
+
 def add_admin(login, password, level):
     conn = sqlite3.connect('crm.db')
     c = conn.cursor()
@@ -107,6 +125,16 @@ def add_order(client_name, product_name, admin_login, status):
     c = conn.cursor()
     c.execute("INSERT INTO Заказы (Клиент_id, Товар_арт, admin_id, Статус) VALUES (?, ?, ?, ?)",
               (client_id, product_article, admin_id, status))
+    conn.commit()
+    conn.close()
+
+def add_warehouse_product(product_name, warehouse_name, sum):
+    product_id = get_product_id(product_name)
+    warehouse_id = get_warehouse_id(warehouse_name)
+    conn = sqlite3.connect('crm.db')
+    c = conn.cursor()
+    c.execute("INSERT INTO Товар_Склад (Товар_id, Склад_id, Количество) VALUES (?, ?, ?)",
+              (product_id, warehouse_id, sum))
     conn.commit()
     conn.close()
 

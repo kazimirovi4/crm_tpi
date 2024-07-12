@@ -14,7 +14,7 @@ c.execute('''CREATE TABLE IF NOT EXISTS Категории
 
 c.execute('''CREATE TABLE IF NOT EXISTS Товары
                  (id INTEGER PRIMARY KEY AUTOINCREMENT, Имя VARCHAR, Артикул VARCHAR UNIQUE ,
-                 Категория_id INTEGER, Характеристики VARCHAR, Картинка VARCHAR, Склад_id VARCHAR,
+                 Категория_id INTEGER, Цена REAL, Характеристики VARCHAR, Картинка VARCHAR, Склад_id VARCHAR,
                  FOREIGN KEY(Категория_id) REFERENCES Категории(id), FOREIGN KEY(Склад_id) REFERENCES Склады(id))''')
 
 # c.execute('''DROP TABLE Товары''')

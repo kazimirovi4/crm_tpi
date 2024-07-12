@@ -1,6 +1,6 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 import sqlite3
-from add_data import add_product, add_warehouse, add_client, add_document
+from add_data import add_product, add_warehouse, add_client, add_document, add_warehouse_product
 
 
 class Ui_Dialog(object):
@@ -10,7 +10,7 @@ class Ui_Dialog(object):
         self.comboBox = QtWidgets.QComboBox(Dialog)
         self.comboBox.setGeometry(QtCore.QRect(30, 60, 211, 31))
         self.comboBox.setObjectName("comboBox")
-        self.comboBox.addItems(["Товар", "Склад", "Клиент", "Документы"])
+        self.comboBox.addItems(["Товар", "Склад", "Клиент", "Документы", "Продукты на складах"])
         self.comboBox.currentIndexChanged.connect(self.updateTables)
 
         self.label_1 = QtWidgets.QLabel(Dialog)
@@ -129,6 +129,10 @@ class Ui_Dialog(object):
             c.execute('SELECT * FROM Документы')
             columns = ["ID документа", "Название", "Тип", "Дата создания", "Описание"]
             columns_2 = ["Название", "Тип", "Дата создания", "Описание"]
+        elif index == 4:
+            c.execute('SELECT * FROM Товар_Склад')
+            columns = ["ID", "Товар_id", "Склад_id", "Количество"]
+            columns_2 = ["Товар_id", "Склад_id", "Количество"]
 
         rows = c.fetchall()
 
@@ -162,6 +166,8 @@ class Ui_Dialog(object):
             add_client(data[0], data[1], data[2])
         elif index == 3:
             add_document(data[0], data[1], data[2], data[3])
+        elif index == 4:
+            add_warehouse_product(data[0], data[1], data[2])
 
         self.load_data()
 
