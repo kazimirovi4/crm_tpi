@@ -1,4 +1,5 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
+import sqlite3
 #новая транзакция
 
 class Ui_Dialog(object):
@@ -51,21 +52,19 @@ class Ui_Dialog(object):
         self.tableWidget = QtWidgets.QTableWidget(Dialog)
         self.tableWidget.setGeometry(QtCore.QRect(30, 310, 1051, 271))
         self.tableWidget.setObjectName("tableWidget")
-        self.tableWidget.setColumnCount(9)
-        self.tableWidget.setRowCount(4)
+        self.tableWidget.setColumnCount(6)
+        self.tableWidget.setRowCount(6)
         self.tableWidget.setHorizontalHeaderLabels([
-            "Артикул", "Наименование", "Категория", "Характеристики", "Срок годности",
-            "Картинка", "Количество на складах", "Цена за единицу", "Количество заказа"
+            "Артикул", "Наименование", "Категория", "Характеристики", "Картинка", "Количество на складах"
         ])
 
         self.tableWidget_2 = QtWidgets.QTableWidget(Dialog)
         self.tableWidget_2.setGeometry(QtCore.QRect(30, 610, 1051, 192))
         self.tableWidget_2.setObjectName("tableWidget_2")
-        self.tableWidget_2.setColumnCount(9)
-        self.tableWidget_2.setRowCount(2)
+        self.tableWidget_2.setColumnCount(6)
+        self.tableWidget_2.setRowCount(0)
         self.tableWidget_2.setHorizontalHeaderLabels([
-            "Артикул", "Наименование", "Категория", "Характеристики", "Срок годности",
-            "Картинка", "Количество", "Цена за единицу", "Сумма"
+            "Артикул", "Наименование", "Категория", "Характеристики", "Картинка", "Количество на складах"
         ])
 
         self.pushButton_3 = QtWidgets.QPushButton(Dialog)
@@ -111,6 +110,8 @@ class Ui_Dialog(object):
         self.resize_table_columns(self.tableWidget_2)
         self.lineEdit_2.textChanged.connect(self.filter_table)
         self.pushButton_5.clicked.connect(self.filter_by_price)
+        self.load_data()
+        self.tableWidget.cellDoubleClicked.connect(self.copy_to_tableWidget_2)
 
     def resize_table_columns(self, table):
         table.resizeColumnsToContents()
@@ -128,6 +129,43 @@ class Ui_Dialog(object):
         self.label_2.setText(_translate("Dialog", "Цена"))
         self.pushButton_5.setText(_translate("Dialog", "Поиск"))
         self.checkBox.setText(_translate("Dialog", "Хотите ли вы просмотреть счет после сохранения операции?"))
+
+
+    def load_data(self):
+        conn = sqlite3.connect('crm.db')
+        c = conn.cursor()
+        # c.execute('SELECT * FROM Товары')
+        # "Артикул", "Наименование", "Категория", "Характеристики", "Картинка", "Количество на складах"
+
+        c.execute('''
+            SELECT Товары.Артикул, Товары.Имя, Категории.Имя, Товары.Характеристики, Товары.Картинка, Склады.Название
+            FROM Товары
+            JOIN Категории ON Товары.Категория_id = Категории.id
+            JOIN Склады ON Товары.Склад_id = Склады.id
+            ''')
+        rows = c.fetchall()
+        conn.close()
+
+        self.tableWidget.setRowCount(len(rows))
+
+        for row_num, row_data in enumerate(rows):
+            for col_num, data in enumerate(row_data):
+                item = QtWidgets.QTableWidgetItem(str(data))
+                self.tableWidget.setItem(row_num, col_num, item)
+
+    def copy_to_tableWidget_2(self, row, column):
+        row_data = []
+        for col in range(self.tableWidget.columnCount()):
+            item = self.tableWidget.item(row, col)
+            row_data.append(item.text() if item else "")
+
+        # Add new row to tableWidget_2
+        row_position = self.tableWidget_2.rowCount()
+        self.tableWidget_2.insertRow(row_position)
+
+        for col, data in enumerate(row_data):
+            item = QtWidgets.QTableWidgetItem(data)
+            self.tableWidget_2.setItem(row_position, col, item)
 
 
     def filter_table(self):

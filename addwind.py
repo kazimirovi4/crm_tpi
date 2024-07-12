@@ -145,7 +145,7 @@ class Ui_Dialog(object):
             data.append(item.text() if item else '')
 
         if index == 0:
-            add_product(data[0], data[1], data[2], data[3])
+            add_product(data[0], data[1], data[2], data[3], data[4])
         elif index == 1:
             add_warehouse(data[0], data[1], data[2])
         elif index == 2:
