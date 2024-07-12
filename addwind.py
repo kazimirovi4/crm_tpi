@@ -153,21 +153,23 @@ class Ui_Dialog(object):
 
     def save_data(self):
         index = self.comboBox.currentIndex()
-        data = []
-        for col in range(self.tableWidget_2.columnCount()):
-            item = self.tableWidget_2.item(0, col)
-            data.append(item.text() if item else '')
 
-        if index == 0:
-            add_product(data[0], data[1], data[2], data[3], data[4], data[5])
-        elif index == 1:
-            add_warehouse(data[0], data[1], data[2])
-        elif index == 2:
-            add_client(data[0], data[1], data[2])
-        elif index == 3:
-            add_document(data[0], data[1], data[2], data[3])
-        elif index == 4:
-            add_warehouse_product(data[0], data[1], data[2])
+        for row in range(self.tableWidget_2.rowCount()):
+            data = []
+            for col in range(self.tableWidget_2.columnCount()):
+                item = self.tableWidget_2.item(row, col)
+                data.append(item.text() if item else '')
+
+            if index == 0:
+                add_product(data[0], data[1], data[2], data[3], data[4], data[5])
+            elif index == 1:
+                add_warehouse(data[0], data[1], data[2])
+            elif index == 2:
+                add_client(data[0], data[1], data[2])
+            elif index == 3:
+                add_document(data[0], data[1], data[2], data[3])
+            elif index == 4:
+                add_warehouse_product(data[0], data[1], data[2])
 
         self.load_data()
 
