@@ -33,7 +33,7 @@ class Ui_Dialog(object):
         self.tableWidget.setGeometry(QtCore.QRect(30, 310, 1051, 271))
         self.tableWidget.setObjectName("tableWidget")
         self.tableWidget.setColumnCount(7)
-        self.tableWidget.setRowCount(6)
+        self.tableWidget.setRowCount(10)
         self.tableWidget.setHorizontalHeaderLabels([
             "ID Товара", "Наименование товара", "Артикул", "Категория", "Характеристики", "Картинка, Склад_id"
         ])
@@ -41,19 +41,16 @@ class Ui_Dialog(object):
         header.setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
 
         self.tableWidget_2 = QtWidgets.QTableWidget(Dialog)
-        self.tableWidget_2.setGeometry(QtCore.QRect(30, 610, 1051, 192))
+        self.tableWidget_2.setGeometry(QtCore.QRect(30, 610, 951, 192))
         self.tableWidget_2.setObjectName("tableWidget_2")
         self.tableWidget_2.setColumnCount(5)
-        self.tableWidget_2.setRowCount(1)
+        self.tableWidget_2.setRowCount(0)
         self.tableWidget_2.setHorizontalHeaderLabels([
             "Наименование товара", "Категория", "Характеристики", "Картинка", 'Склад_id'
         ])
         header_2 = self.tableWidget_2.horizontalHeader()
         header_2.setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
 
-        self.pushButton_3 = QtWidgets.QPushButton(Dialog)
-        self.pushButton_3.setGeometry(QtCore.QRect(870, 820, 93, 28))
-        self.pushButton_3.setObjectName("pushButton_3")
         self.pushButton_4 = QtWidgets.QPushButton(Dialog)
         self.pushButton_4.setGeometry(QtCore.QRect(990, 820, 93, 28))
         self.pushButton_4.setObjectName("pushButton_4")
@@ -70,6 +67,18 @@ class Ui_Dialog(object):
         self.lineEdit.setPlaceholderText("Ответственное лицо")
         self.lineEdit_2.setPlaceholderText("Фильтр")
 
+        self.addButton = QtWidgets.QPushButton(Dialog)
+        self.addButton.setGeometry(QtCore.QRect(990, 610, 93, 28))
+        self.addButton.setObjectName("addButton")
+        self.addButton.setText("+")
+        self.addButton.clicked.connect(self.add_row)
+
+        self.removeButton = QtWidgets.QPushButton(Dialog)
+        self.removeButton.setGeometry(QtCore.QRect(990, 648, 93, 28))
+        self.removeButton.setObjectName("removeButton")
+        self.removeButton.setText("-")
+        self.removeButton.clicked.connect(self.remove_row)
+
         self.retranslateUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
@@ -80,9 +89,10 @@ class Ui_Dialog(object):
         _translate = QtCore.QCoreApplication.translate
         Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
         self.pushButton.setText(_translate("Dialog", "Обновить"))
-        self.pushButton_3.setText(_translate("Dialog", "Отмена"))
         self.pushButton_4.setText(_translate("Dialog", "Сохранить"))
         self.pushButton_5.setText(_translate("Dialog", "Удалить строку"))
+        self.addButton.setText(_translate("Dialog", "+"))
+        self.removeButton.setText(_translate("Dialog", "-"))
 
     def filter_table(self):
         filter_text = self.lineEdit_2.text().lower()
@@ -131,7 +141,7 @@ class Ui_Dialog(object):
 
         self.tableWidget_2.setColumnCount(len(columns_2))
         self.tableWidget_2.setHorizontalHeaderLabels(columns_2)
-        self.tableWidget_2.setRowCount(1)
+        self.tableWidget_2.setRowCount(0)
         for col_idx, col_data in enumerate(columns_2):
             self.tableWidget_2.setItem(0, col_idx, QtWidgets.QTableWidgetItem(""))
 
@@ -174,6 +184,14 @@ class Ui_Dialog(object):
         conn.commit()
         conn.close()
         self.load_data()
+
+    def add_row(self):
+        self.tableWidget_2.insertRow(self.tableWidget_2.rowCount())
+
+    def remove_row(self):
+        current_row = self.tableWidget_2.currentRow()
+        if current_row != -1:
+            self.tableWidget_2.removeRow(current_row)
 
 
 
