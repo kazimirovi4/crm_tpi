@@ -184,14 +184,6 @@ class Ui_Dialog(object):
                 self.tableWidget_2.setItem(row_position, col, item)
 
 
-        # row_position = self.tableWidget_2.rowCount()
-        # self.tableWidget_2.insertRow(row_position)
-        #
-        # for col, data in enumerate(row_data):
-        #     item = QtWidgets.QTableWidgetItem(data)
-        #     self.tableWidget_2.setItem(row_position, col, item)
-
-
     def filter_table(self):
         filter_text = self.lineEdit_2.text().lower()
         for row in range(self.tableWidget.rowCount()):
