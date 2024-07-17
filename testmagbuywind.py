@@ -168,7 +168,7 @@ class Ui_Dialog(object):
 
 
     def filter_table(self):
-        filter_text = self.lineEdit.text().lower()
+        filter_text = self.lineEdit_2.text().lower()
         for row in range(self.tableWidget.rowCount()):
             match = False
             for col in range(self.tableWidget.columnCount()):
