@@ -101,9 +101,10 @@ class Ui_Dialog(object):
         self.checkBox.setObjectName("checkBox")
 
         self.total_label = QtWidgets.QLabel(Dialog)
-        self.total_label.setGeometry(QtCore.QRect(870, 810, 200, 30))
+        self.total_label.setGeometry(QtCore.QRect(830, 810, 300, 50))
         self.total_label.setObjectName("total_label")
         self.total_label.setText("Итоговая стоимость: 0")
+        self.total_label.setStyleSheet("font-size: 16px;")
 
         self.lineEdit.setPlaceholderText("Ответственное лицо")
         self.lineEdit_2.setPlaceholderText("Фильтр")
@@ -203,7 +204,7 @@ class Ui_Dialog(object):
                     total += float(item.text())
                 except ValueError:
                     pass
-        self.total_label.setText(f"Итоговая стоимость: {total}")
+        self.total_label.setText(f"Итоговая стоимость: {total} BYN")
 
 
     def filter_table(self):
