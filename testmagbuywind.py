@@ -10,6 +10,7 @@ class Ui_Dialog(object):
         self.comboBox_1.setGeometry(QtCore.QRect(30, 30, 211, 31))
         self.comboBox_1.setObjectName("comboBox_1")
         self.comboBox_1.addItems(["Перемещение", "Продажа", "Списание", "Приёмка"])
+        self.comboBox_1.setCurrentIndex(1)
 
         self.label_1 = QtWidgets.QLabel(Dialog)
         self.label_1.setGeometry(QtCore.QRect(250, 30, 211, 31))
@@ -20,6 +21,7 @@ class Ui_Dialog(object):
         self.comboBox_2.setGeometry(QtCore.QRect(30, 70, 211, 31))
         self.comboBox_2.setObjectName("comboBox_2")
         self.comboBox_2.addItems(["Склад 1", "Склад 2", "Склад 3", "Со всех складов"])
+        self.comboBox_2.setCurrentIndex(3)
 
         self.label_2 = QtWidgets.QLabel(Dialog)
         self.label_2.setGeometry(QtCore.QRect(250, 70, 211, 31))
@@ -110,6 +112,7 @@ class Ui_Dialog(object):
         self.resize_table_columns(self.tableWidget_2)
         self.lineEdit_2.textChanged.connect(self.filter_table)
         self.pushButton_5.clicked.connect(self.filter_by_price)
+        self.comboBox_2.currentIndexChanged.connect(self.filter_by_warehouse)
         self.load_data()
         self.tableWidget.cellDoubleClicked.connect(self.copy_to_tableWidget_2)
 
@@ -195,7 +198,17 @@ class Ui_Dialog(object):
                         hide_row = True
                     self.tableWidget.setRowHidden(row, hide_row)
                 except ValueError:
-                    self.tableWidget.setRowHidden(row, True)
+                    self.tableWidget.setRowHidden(row, True)\
+
+
+    def filter_by_warehouse(self):
+        selected_warehouse = self.comboBox_2.currentText()
+        for row in range(self.tableWidget.rowCount()):
+            item = self.tableWidget.item(row, 6)
+            if selected_warehouse == "Со всех складов":
+                self.tableWidget.setRowHidden(row, False)
+            else:
+                self.tableWidget.setRowHidden(row, item.text() != selected_warehouse)
 
 
 if __name__ == "__main__":
