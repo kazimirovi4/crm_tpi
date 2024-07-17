@@ -161,13 +161,35 @@ class Ui_Dialog(object):
             item = self.tableWidget.item(row, col)
             row_data.append(item.text() if item else "")
 
-        # Add new row to tableWidget_2
-        row_position = self.tableWidget_2.rowCount()
-        self.tableWidget_2.insertRow(row_position)
+        quantity_dialog = QtWidgets.QInputDialog()
+        quantity_dialog.setInputMode(QtWidgets.QInputDialog.IntInput)
+        quantity_dialog.setWindowTitle("Введите количество")
+        quantity_dialog.setLabelText("Количество:")
+        quantity_dialog.setIntRange(1, int(row_data[7]))
 
-        for col, data in enumerate(row_data):
-            item = QtWidgets.QTableWidgetItem(data)
-            self.tableWidget_2.setItem(row_position, col, item)
+        if quantity_dialog.exec_() == QtWidgets.QDialog.Accepted:
+            quantity = quantity_dialog.intValue()
+            current_quantity = int(row_data[7])
+            new_quantity = current_quantity - quantity
+
+            self.tableWidget.setItem(row, 7, QtWidgets.QTableWidgetItem(str(new_quantity)))
+
+            row_data[7] = str(quantity)
+
+            row_position = self.tableWidget_2.rowCount()
+            self.tableWidget_2.insertRow(row_position)
+
+            for col, data in enumerate(row_data):
+                item = QtWidgets.QTableWidgetItem(data)
+                self.tableWidget_2.setItem(row_position, col, item)
+
+
+        # row_position = self.tableWidget_2.rowCount()
+        # self.tableWidget_2.insertRow(row_position)
+        #
+        # for col, data in enumerate(row_data):
+        #     item = QtWidgets.QTableWidgetItem(data)
+        #     self.tableWidget_2.setItem(row_position, col, item)
 
 
     def filter_table(self):
