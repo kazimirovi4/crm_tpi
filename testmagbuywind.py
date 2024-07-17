@@ -5,7 +5,7 @@ import sqlite3
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
-        Dialog.resize(1123, 865)
+        Dialog.resize(1120, 950)
         self.comboBox_1 = QtWidgets.QComboBox(Dialog)
         self.comboBox_1.setGeometry(QtCore.QRect(30, 30, 211, 31))
         self.comboBox_1.setObjectName("comboBox_1")
@@ -63,17 +63,17 @@ class Ui_Dialog(object):
         self.tableWidget_2 = QtWidgets.QTableWidget(Dialog)
         self.tableWidget_2.setGeometry(QtCore.QRect(30, 610, 1051, 192))
         self.tableWidget_2.setObjectName("tableWidget_2")
-        self.tableWidget_2.setColumnCount(8)
+        self.tableWidget_2.setColumnCount(9)
         self.tableWidget_2.setRowCount(0)
         self.tableWidget_2.setHorizontalHeaderLabels([
-            "Артикул", "Наименование", "Цена", "Категория", "Характеристики", "Картинка", "Склад", "Количество на складах"
+            "Артикул", "Наименование", "Цена", "Категория", "Характеристики", "Картинка", "Склад", "Количество на складах", "Итоговая цена"
         ])
 
         self.pushButton_3 = QtWidgets.QPushButton(Dialog)
-        self.pushButton_3.setGeometry(QtCore.QRect(870, 820, 93, 28))
+        self.pushButton_3.setGeometry(QtCore.QRect(870, 870, 93, 28))
         self.pushButton_3.setObjectName("pushButton_3")
         self.pushButton_4 = QtWidgets.QPushButton(Dialog)
-        self.pushButton_4.setGeometry(QtCore.QRect(990, 820, 93, 28))
+        self.pushButton_4.setGeometry(QtCore.QRect(990, 870, 93, 28))
         self.pushButton_4.setObjectName("pushButton_4")
         self.label = QtWidgets.QLabel(Dialog)
         self.label.setGeometry(QtCore.QRect(40, 240, 55, 16))
@@ -97,8 +97,13 @@ class Ui_Dialog(object):
         self.pushButton_5.setGeometry(QtCore.QRect(990, 270, 93, 28))
         self.pushButton_5.setObjectName("pushButton_5")
         self.checkBox = QtWidgets.QCheckBox(Dialog)
-        self.checkBox.setGeometry(QtCore.QRect(270, 810, 391, 41))
+        self.checkBox.setGeometry(QtCore.QRect(270, 860, 391, 41))
         self.checkBox.setObjectName("checkBox")
+
+        self.total_label = QtWidgets.QLabel(Dialog)
+        self.total_label.setGeometry(QtCore.QRect(870, 810, 200, 30))
+        self.total_label.setObjectName("total_label")
+        self.total_label.setText("Итоговая стоимость: 0")
 
         self.lineEdit.setPlaceholderText("Ответственное лицо")
         self.lineEdit_2.setPlaceholderText("Фильтр")
@@ -139,7 +144,8 @@ class Ui_Dialog(object):
         c = conn.cursor()
 
         c.execute('''
-            SELECT Товары.Артикул, Товары.Имя, Товары.Цена, Категории.Имя, Товары.Характеристики, Товары.Картинка, Склады.Название, Товар_Склад.Количество
+            SELECT Товары.Артикул, Товары.Имя, Товары.Цена, Категории.Имя, Товары.Характеристики, Товары.Картинка, 
+            Склады.Название, Товар_Склад.Количество
             FROM Товары
             JOIN Категории ON Товары.Категория_id = Категории.id
             JOIN Склады ON Товар_Склад.Склад_id = Склады.id
@@ -176,12 +182,28 @@ class Ui_Dialog(object):
 
             row_data[7] = str(quantity)
 
+            total_price = float(row_data[2]) * quantity
+            row_data.append(str(total_price))
+
             row_position = self.tableWidget_2.rowCount()
             self.tableWidget_2.insertRow(row_position)
 
             for col, data in enumerate(row_data):
                 item = QtWidgets.QTableWidgetItem(data)
                 self.tableWidget_2.setItem(row_position, col, item)
+
+            self.update_total_price()
+
+    def update_total_price(self):
+        total = 0
+        for row in range(self.tableWidget_2.rowCount()):
+            item = self.tableWidget_2.item(row, 8)
+            if item:
+                try:
+                    total += float(item.text())
+                except ValueError:
+                    pass
+        self.total_label.setText(f"Итоговая стоимость: {total}")
 
 
     def filter_table(self):
