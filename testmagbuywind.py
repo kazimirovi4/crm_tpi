@@ -52,19 +52,19 @@ class Ui_Dialog(object):
         self.tableWidget = QtWidgets.QTableWidget(Dialog)
         self.tableWidget.setGeometry(QtCore.QRect(30, 310, 1051, 271))
         self.tableWidget.setObjectName("tableWidget")
-        self.tableWidget.setColumnCount(6)
+        self.tableWidget.setColumnCount(7)
         self.tableWidget.setRowCount(6)
         self.tableWidget.setHorizontalHeaderLabels([
-            "Артикул", "Наименование", "Категория", "Характеристики", "Картинка", "Количество на складах"
+            "Артикул", "Наименование", "Категория", "Характеристики", "Картинка", "Склад", "Количество на складах"
         ])
 
         self.tableWidget_2 = QtWidgets.QTableWidget(Dialog)
         self.tableWidget_2.setGeometry(QtCore.QRect(30, 610, 1051, 192))
         self.tableWidget_2.setObjectName("tableWidget_2")
-        self.tableWidget_2.setColumnCount(6)
+        self.tableWidget_2.setColumnCount(7)
         self.tableWidget_2.setRowCount(0)
         self.tableWidget_2.setHorizontalHeaderLabels([
-            "Артикул", "Наименование", "Категория", "Характеристики", "Картинка", "Количество на складах"
+            "Артикул", "Наименование", "Категория", "Характеристики", "Картинка", "Склад", "Количество на складах"
         ])
 
         self.pushButton_3 = QtWidgets.QPushButton(Dialog)
@@ -136,10 +136,11 @@ class Ui_Dialog(object):
         c = conn.cursor()
 
         c.execute('''
-            SELECT Товары.Артикул, Товары.Имя, Категории.Имя, Товары.Характеристики, Товары.Картинка, Склады.Название
+            SELECT Товары.Артикул, Товары.Имя, Категории.Имя, Товары.Характеристики, Товары.Картинка, Склады.Название, Товар_Склад.Количество
             FROM Товары
             JOIN Категории ON Товары.Категория_id = Категории.id
-            JOIN Склады ON Товары.Склад_id = Склады.id
+            JOIN Склады ON Товар_Склад.Склад_id = Склады.id
+            JOIN Товар_Склад ON Товары.id = Товар_Склад.Товар_id
             ''')
         rows = c.fetchall()
         conn.close()

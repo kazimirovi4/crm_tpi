@@ -140,7 +140,7 @@ def add_warehouse_product(product_name, warehouse_name, sum):
 
 # add_product('Телефон', 'Электроника', '4GB RAM, 64GB ROM', 'phone.jpg')
 # add_admin('admin', 'admin', 'superuser')
-# add_order('Johan', 'Молоко', 'admin', 'В_пути')
+# add_order('Pohan', 'Телефон', 'admin', 'Заказ собирается')
 # add_category('Молочная продукция')
 # add_product('Молоко', 'Молочная продукция', 'бутылка', '1.jpg', '1')
 # add_product('Телефон', 'Электроника', '4GB RAM, 64GB ROM', 'phone.jpg')
