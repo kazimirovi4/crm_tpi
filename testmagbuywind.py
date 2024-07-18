@@ -1,5 +1,6 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 import sqlite3
+import openpyxl
 #новая транзакция
 
 class Ui_Dialog(object):
@@ -111,6 +112,11 @@ class Ui_Dialog(object):
         self.lineEdit_3.setPlaceholderText("От")
         self.lineEdit_4.setPlaceholderText("До")
 
+        self.clientComboBox = QtWidgets.QComboBox(Dialog)
+        self.clientComboBox.setGeometry(QtCore.QRect(30, 150, 211, 31))
+        self.clientComboBox.setObjectName("clientComboBox")
+        self.load_clients()
+
         self.retranslateUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
@@ -121,6 +127,7 @@ class Ui_Dialog(object):
         self.comboBox_2.currentIndexChanged.connect(self.filter_by_warehouse)
         self.load_data()
         self.tableWidget.cellDoubleClicked.connect(self.copy_to_tableWidget_2)
+        self.pushButton_4.clicked.connect(self.save_data)
 
     def resize_table_columns(self, table):
         table.resizeColumnsToContents()
@@ -246,6 +253,84 @@ class Ui_Dialog(object):
                 self.tableWidget.setRowHidden(row, False)
             else:
                 self.tableWidget.setRowHidden(row, item.text() != selected_warehouse)
+
+    def save_to_excel(self):
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "Данные"
+
+        headers = [self.tableWidget_2.horizontalHeaderItem(col).text() for col in
+                   range(self.tableWidget_2.columnCount())]
+        ws.append(headers)
+
+        for row in range(self.tableWidget_2.rowCount()):
+            row_data = [self.tableWidget_2.item(row, col).text() if self.tableWidget_2.item(row, col) else "" for col in
+                        range(self.tableWidget_2.columnCount())]
+            ws.append(row_data)
+
+        total_row = [''] * (self.tableWidget_2.columnCount() - 1) + ["Итоговая стоимость:",
+                                                                     self.total_label.text().split(': ')[1]]
+        ws.append(total_row)
+
+        wb.save("output.xlsx")
+
+    def update_database(self):
+        conn = sqlite3.connect('crm.db')
+        c = conn.cursor()
+
+        for row in range(self.tableWidget.rowCount()):
+            art = self.tableWidget.item(row, 0).text()
+            quantity = self.tableWidget.item(row, 7).text()
+
+            # Обновление данных в базе данных
+            c.execute('''
+                UPDATE Товар_Склад
+                SET Количество = ?
+                WHERE Товар_id = (SELECT id FROM Товары WHERE Артикул = ?)
+            ''', (quantity, art))
+
+        conn.commit()
+        conn.close()
+
+    def save_data(self):
+        self.save_to_excel()
+        self.update_database()
+        self.save_orders_to_database()
+        QtWidgets.QMessageBox.information(None, "Сохранение",
+                                          "Данные успешно сохранены в Excel файл и обновлены в базе данных.")
+
+    def load_clients(self):
+        conn = sqlite3.connect('crm.db')
+        c = conn.cursor()
+        c.execute("SELECT id, ФИО FROM Клиенты")
+        clients = c.fetchall()
+        for client_id, client_name in clients:
+            self.clientComboBox.addItem(client_name, client_id)
+        conn.close()
+
+    def get_current_admin_id(self):
+        return self.lineEdit.text()
+
+
+    def save_orders_to_database(self):
+        conn = sqlite3.connect('crm.db')
+        c = conn.cursor()
+
+        client_id = self.clientComboBox.currentData()
+        admin_id = self.get_current_admin_id()
+
+        for row in range(self.tableWidget_2.rowCount()):
+            art = self.tableWidget_2.item(row, 0).text()
+            # quantity = self.tableWidget_2.item(row, 7).text()
+            status = "New"
+
+            c.execute('''
+                INSERT INTO Заказы (Клиент_id, Товар_арт, admin_id, Статус)
+                VALUES (?, ?, ?, ?)
+            ''', (client_id, art, admin_id, status))
+
+        conn.commit()
+        conn.close()
 
 
 if __name__ == "__main__":
