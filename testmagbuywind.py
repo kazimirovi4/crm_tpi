@@ -1,6 +1,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 import sqlite3
-#новая транзакция
+import openpyxl
+
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
@@ -9,8 +10,8 @@ class Ui_Dialog(object):
         self.comboBox_1 = QtWidgets.QComboBox(Dialog)
         self.comboBox_1.setGeometry(QtCore.QRect(30, 30, 211, 31))
         self.comboBox_1.setObjectName("comboBox_1")
-        self.comboBox_1.addItems(["Перемещение", "Продажа", "Списание", "Приёмка"])
-        self.comboBox_1.setCurrentIndex(1)
+        self.comboBox_1.addItems(["Перемещение", "Продажа", "Списание", "Приёмка", " "])
+        self.comboBox_1.setCurrentIndex(-1)
 
         self.label_1 = QtWidgets.QLabel(Dialog)
         self.label_1.setGeometry(QtCore.QRect(250, 30, 211, 31))
@@ -20,8 +21,8 @@ class Ui_Dialog(object):
         self.comboBox_2 = QtWidgets.QComboBox(Dialog)
         self.comboBox_2.setGeometry(QtCore.QRect(30, 70, 211, 31))
         self.comboBox_2.setObjectName("comboBox_2")
-        self.comboBox_2.addItems(["Склад 1", "Склад 2", "Склад 3", "Со всех складов"])
-        self.comboBox_2.setCurrentIndex(3)
+        self.comboBox_2.addItems(["Склад 1", "Склад 2", "Склад 3", "Со всех складов", " "])
+        self.comboBox_2.setCurrentIndex(-1)
 
         self.label_2 = QtWidgets.QLabel(Dialog)
         self.label_2.setGeometry(QtCore.QRect(250, 70, 211, 31))
@@ -31,7 +32,8 @@ class Ui_Dialog(object):
         self.comboBox_3 = QtWidgets.QComboBox(Dialog)
         self.comboBox_3.setGeometry(QtCore.QRect(30, 110, 211, 31))
         self.comboBox_3.setObjectName("comboBox_3")
-        self.comboBox_3.addItems(["Склад 1", "Склад 2", "Склад 3"])
+        self.comboBox_3.addItems(["Склад 1", "Склад 2", "Склад 3", " "])
+        self.comboBox_3.setCurrentIndex(-1)
 
         self.label_3 = QtWidgets.QLabel(Dialog)
         self.label_3.setGeometry(QtCore.QRect(250, 110, 211, 31))
@@ -55,7 +57,8 @@ class Ui_Dialog(object):
         self.tableWidget.setColumnCount(8)
         self.tableWidget.setRowCount(6)
         self.tableWidget.setHorizontalHeaderLabels([
-            "Артикул", "Наименование", "Цена", "Категория", "Характеристики", "Картинка", "Склад", "Количество на складах"
+            "Артикул", "Наименование", "Цена", "Категория", "Характеристики", "Картинка", "Склад",
+            "Количество на складах"
         ])
 
         self.tableWidget_2 = QtWidgets.QTableWidget(Dialog)
@@ -64,7 +67,8 @@ class Ui_Dialog(object):
         self.tableWidget_2.setColumnCount(9)
         self.tableWidget_2.setRowCount(0)
         self.tableWidget_2.setHorizontalHeaderLabels([
-            "Артикул", "Наименование", "Цена", "Категория", "Характеристики", "Картинка", "Склад", "Количество на складах", "Итоговая цена"
+            "Артикул", "Наименование", "Цена", "Категория", "Характеристики", "Картинка", "Склад",
+            "Количество на складах", "Итоговая цена"
         ])
 
         self.pushButton_3 = QtWidgets.QPushButton(Dialog)
@@ -109,6 +113,11 @@ class Ui_Dialog(object):
         self.lineEdit_3.setPlaceholderText("От")
         self.lineEdit_4.setPlaceholderText("До")
 
+        self.lineEdit = QtWidgets.QLineEdit(Dialog)
+        self.lineEdit.setGeometry(QtCore.QRect(30, 150, 211, 31))
+        self.lineEdit.setObjectName("lineEdit")
+        self.lineEdit.setPlaceholderText("Ответственное лицо")
+
         self.retranslateUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
@@ -119,6 +128,8 @@ class Ui_Dialog(object):
         self.comboBox_2.currentIndexChanged.connect(self.filter_by_warehouse)
         self.load_data()
         self.tableWidget.cellDoubleClicked.connect(self.copy_to_tableWidget_2)
+        self.pushButton_4.clicked.connect(self.save_data)
+        self.comboBox_1.currentIndexChanged.connect(self.update_ui_based_on_operation)
 
     def resize_table_columns(self, table):
         table.resizeColumnsToContents()
@@ -136,7 +147,6 @@ class Ui_Dialog(object):
         self.label_2.setText(_translate("Dialog", "Цена"))
         self.pushButton_5.setText(_translate("Dialog", "Поиск"))
         self.checkBox.setText(_translate("Dialog", "Хотите ли вы просмотреть счет после сохранения операции?"))
-
 
     def load_data(self):
         conn = sqlite3.connect('crm.db')
@@ -204,7 +214,6 @@ class Ui_Dialog(object):
                     pass
         self.total_label.setText(f"Итоговая стоимость: {total} BYN")
 
-
     def filter_table(self):
         filter_text = self.lineEdit_2.text().lower()
         for row in range(self.tableWidget.rowCount()):
@@ -233,8 +242,7 @@ class Ui_Dialog(object):
                         hide_row = True
                     self.tableWidget.setRowHidden(row, hide_row)
                 except ValueError:
-                    self.tableWidget.setRowHidden(row, True)\
-
+                    self.tableWidget.setRowHidden(row, True)
 
     def filter_by_warehouse(self):
         selected_warehouse = self.comboBox_2.currentText()
@@ -244,6 +252,202 @@ class Ui_Dialog(object):
                 self.tableWidget.setRowHidden(row, False)
             else:
                 self.tableWidget.setRowHidden(row, item.text() != selected_warehouse)
+
+    def save_to_excel(self):
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "Данные"
+
+        headers = [self.tableWidget_2.horizontalHeaderItem(col).text() for col in
+                   range(self.tableWidget_2.columnCount())]
+        ws.append(headers)
+
+        for row in range(self.tableWidget_2.rowCount()):
+            row_data = [self.tableWidget_2.item(row, col).text() if self.tableWidget_2.item(row, col) else "" for col in
+                        range(self.tableWidget_2.columnCount())]
+            ws.append(row_data)
+
+        total_row = [''] * (self.tableWidget_2.columnCount() - 1) + ["Итоговая стоимость:",
+                                                                     self.total_label.text().split(': ')[1]]
+        ws.append(total_row)
+
+        wb.save("output.xlsx")
+
+    def update_database(self):
+        conn = sqlite3.connect('crm.db')
+        c = conn.cursor()
+
+        for row in range(self.tableWidget.rowCount()):
+            art = self.tableWidget.item(row, 0).text()
+            quantity = self.tableWidget.item(row, 7).text()
+
+            c.execute('''
+                UPDATE Товар_Склад
+                SET Количество = ?
+                WHERE Товар_id = (SELECT id FROM Товары WHERE Артикул = ?)
+            ''', (quantity, art))
+
+        conn.commit()
+        conn.close()
+
+    def save_data(self):
+        operation_type = self.comboBox_1.currentText()
+
+        if operation_type == "Перемещение":
+            self.handle_transfer()
+        elif operation_type == "Продажа":
+            self.handle_sale_or_writeoff()
+        elif operation_type == "Списание":
+            self.handle_sale_or_writeoff()
+        elif operation_type == "Приёмка":
+            self.handle_reception()
+
+        if self.checkBox.isChecked():
+            self.save_to_excel()
+        self.update_database()
+        self.save_orders_to_database()
+        QtWidgets.QMessageBox.information(None, "Сохранение", "Данные успешно сохранены и обновлены в базе данных.")
+
+    def get_current_admin_id(self):
+        return self.lineEdit.text()
+
+    def save_orders_to_database(self):
+        conn = sqlite3.connect('crm.db')
+        c = conn.cursor()
+
+        client_id = self.get_current_admin_id()
+        admin_id = '1'
+
+        for row in range(self.tableWidget_2.rowCount()):
+            art = self.tableWidget_2.item(row, 0).text()
+            quantity = self.tableWidget_2.item(row, 7).text()
+
+            c.execute('''
+                INSERT INTO Заказы (Клиент_id, Товар_арт, admin_id, Статус)
+                VALUES (?, ?, ?, ?)
+            ''', (client_id, art, admin_id, "New"))
+
+        conn.commit()
+        conn.close()
+
+    def update_ui_based_on_operation(self):
+        operation_type = self.comboBox_1.currentText()
+
+        if operation_type == "Перемещение":
+            self.comboBox_2.setEnabled(True)
+            self.comboBox_3.setEnabled(True)
+            self.comboBox_3.setCurrentIndex(-1)
+        elif operation_type in ["Продажа", "Списание"]:
+            self.comboBox_2.setEnabled(True)
+            self.comboBox_3.setEnabled(False)
+            self.comboBox_3.setCurrentIndex(-1)
+        elif operation_type == "Приёмка":
+            self.comboBox_2.setEnabled(False)
+            self.comboBox_3.setEnabled(True)
+            self.comboBox_2.setCurrentIndex(-1)
+        else:
+            self.comboBox_2.setEnabled(True)
+            self.comboBox_3.setEnabled(True)
+            self.comboBox_2.setCurrentIndex(-1)
+            self.comboBox_3.setCurrentIndex(-1)
+
+    def handle_transfer(self):
+        warehouse_from = self.comboBox_2.currentText()
+        warehouse_to = self.comboBox_3.currentText()
+
+        conn = sqlite3.connect('crm.db')
+        c = conn.cursor()
+
+        for row in range(self.tableWidget_2.rowCount()):
+            art = self.tableWidget_2.item(row, 0).text()
+            quantity = int(self.tableWidget_2.item(row, 7).text())
+
+            c.execute('''
+                UPDATE Товар_Склад
+                SET Количество = Количество - ?
+                WHERE Товар_id = (SELECT id FROM Товары WHERE Артикул = ?) AND Склад_id = (SELECT id FROM Склады WHERE Название = ?)
+            ''', (quantity, art, warehouse_from))
+
+            c.execute('''
+                SELECT Количество FROM Товар_Склад
+                WHERE Товар_id = (SELECT id FROM Товары WHERE Артикул = ?) AND Склад_id = (SELECT id FROM Склады WHERE Название = ?)
+            ''', (art, warehouse_to))
+
+            result = c.fetchone()
+
+            if result:
+
+                c.execute('''
+                    UPDATE Товар_Склад
+                    SET Количество = Количество + ?
+                    WHERE Товар_id = (SELECT id FROM Товары WHERE Артикул = ?) AND Склад_id = (SELECT id FROM Склады WHERE Название = ?)
+                ''', (quantity, art, warehouse_to))
+            else:
+
+                c.execute('''
+                    INSERT INTO Товар_Склад (Товар_id, Склад_id, Количество)
+                    VALUES ((SELECT id FROM Товары WHERE Артикул = ?), (SELECT id FROM Склады WHERE Название = ?), ?)
+                ''', (art, warehouse_to, quantity))
+
+        conn.commit()
+        conn.close()
+
+    def handle_sale_or_writeoff(self):
+        warehouse_from = self.comboBox_2.currentText()
+
+        conn = sqlite3.connect('crm.db')
+        c = conn.cursor()
+
+        for row in range(self.tableWidget_2.rowCount()):
+            art = self.tableWidget_2.item(row, 0).text()
+            quantity = int(self.tableWidget_2.item(row, 7).text())
+
+
+            c.execute('''
+                UPDATE Товар_Склад
+                SET Количество = Количество - ?
+                WHERE Товар_id = (SELECT id FROM Товары WHERE Артикул = ?) AND Склад_id = (SELECT id FROM Склады WHERE Название = ?)
+            ''', (quantity, art, warehouse_from))
+
+        conn.commit()
+        conn.close()
+
+    def handle_reception(self):
+        warehouse_to = self.comboBox_3.currentText()
+
+        conn = sqlite3.connect('crm.db')
+        c = conn.cursor()
+
+        for row in range(self.tableWidget_2.rowCount()):
+            art = self.tableWidget_2.item(row, 0).text()
+            additional_quantity = int(self.tableWidget_2.item(row, 7).text())
+
+
+            c.execute('''
+                SELECT id, Количество
+                FROM Товар_Склад
+                WHERE Товар_id = (SELECT id FROM Товары WHERE Артикул = ?) AND Склад_id = (SELECT id FROM Склады WHERE Название = ?)
+            ''', (art, warehouse_to))
+            result = c.fetchone()
+
+            if result:
+
+                current_quantity = result[1]
+                new_quantity = current_quantity + additional_quantity
+                c.execute('''
+                    UPDATE Товар_Склад
+                    SET Количество = ?
+                    WHERE id = ?
+                ''', (new_quantity, result[0]))
+            else:
+
+                c.execute('''
+                    INSERT INTO Товар_Склад (Товар_id, Склад_id, Количество)
+                    VALUES ((SELECT id FROM Товары WHERE Артикул = ?), (SELECT id FROM Склады WHERE Название = ?), ?)
+                ''', (art, warehouse_to, additional_quantity))
+
+        conn.commit()
+        conn.close()
 
 
 if __name__ == "__main__":

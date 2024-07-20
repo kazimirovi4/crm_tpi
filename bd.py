@@ -35,7 +35,7 @@ c.execute('''CREATE TABLE IF NOT EXISTS Документы
                  Содержание VARCHAR)''')
 
 c.execute('''CREATE TABLE IF NOT EXISTS Товар_Склад
-                 (id INTEGER PRIMARY KEY AUTOINCREMENT, Товар_id VARCHAR, Склад_id VARCHAR, Количество INTAGER,
+                 (id INTEGER PRIMARY KEY AUTOINCREMENT, Товар_id VARCHAR, Склад_id VARCHAR, Количество INTEGER,
                  FOREIGN KEY(Товар_id) REFERENCES Товары(id), FOREIGN KEY(Склад_id) REFERENCES Склады(id))''')
 
 conn.commit()
