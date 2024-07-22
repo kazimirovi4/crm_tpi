@@ -5,7 +5,7 @@ import uuid
 def get_category_id(category_name):
     conn = sqlite3.connect('crm.db')
     c = conn.cursor()
-    c.execute("SELECT id FROM Категории WHERE Имя = ?", (category_name,))
+    c.execute("SELECT id FROM Categories WHERE name = ?", (category_name,))
     result = c.fetchone()
     conn.close()
     return result[0] if result else None
@@ -14,7 +14,7 @@ def get_category_id(category_name):
 def add_category(category_name):
     conn = sqlite3.connect('crm.db')
     c = conn.cursor()
-    c.execute("INSERT INTO Категории (Имя) VALUES (?)", (category_name,))
+    c.execute("INSERT INTO Categories (name) VALUES (?)", (category_name,))
     conn.commit()
     category_id = c.lastrowid
     conn.close()
@@ -32,7 +32,7 @@ def add_product(name, category_name, price, characteristics, image, sklad_id):
     article = generate_unique_article()
     conn = sqlite3.connect('crm.db')
     c = conn.cursor()
-    c.execute("INSERT INTO Товары (Имя, Артикул, Категория_id, Цена, Характеристики, Картинка, Склад_id) VALUES(?, ?, ?, ?, ?, ?, ?)",
+    c.execute("INSERT INTO Products (name, art, category_id, price, characteristics, picture, warehouse_id) VALUES(?, ?, ?, ?, ?, ?, ?)",
               (name, article, category_id, price, characteristics, image, sklad_id))
     conn.commit()
     conn.close()
@@ -41,7 +41,7 @@ def add_product(name, category_name, price, characteristics, image, sklad_id):
 def add_warehouse(name, address, coordinates):
     conn = sqlite3.connect('crm.db')
     c = conn.cursor()
-    c.execute("INSERT INTO Склады (Название, Адрес, Координаты) VALUES (?, ?, ?)",
+    c.execute("INSERT INTO Warehouses (name, address, coordinates) VALUES (?, ?, ?)",
               (name, address, coordinates))
     conn.commit()
     conn.close()
@@ -50,7 +50,7 @@ def add_warehouse(name, address, coordinates):
 def get_warehouse_id(warehouse_name):
     conn = sqlite3.connect('crm.db')
     c = conn.cursor()
-    c.execute("SELECT id FROM Склады WHERE Название = ?", (warehouse_name,))
+    c.execute("SELECT id FROM Warehouses WHERE name = ?", (warehouse_name,))
     result = c.fetchone()
     conn.close()
     return result[0] if result else None
@@ -59,7 +59,7 @@ def get_warehouse_id(warehouse_name):
 def add_client(full_name, address, phone):
     conn = sqlite3.connect('crm.db')
     c = conn.cursor()
-    c.execute("INSERT INTO Клиенты (ФИО, Адрес, Телефон) VALUES (?, ?, ?)",
+    c.execute("INSERT INTO Clients (full_name, address, phone) VALUES (?, ?, ?)",
               (full_name, address, phone))
     conn.commit()
     conn.close()
@@ -68,7 +68,7 @@ def add_client(full_name, address, phone):
 def add_document(name, type, creation_date, content):
     conn = sqlite3.connect('crm.db')
     c = conn.cursor()
-    c.execute("INSERT INTO Документы (Название, Тип, Дата_создания, Содержание) VALUES (?, ?, ?, ?)",
+    c.execute("INSERT INTO Documents (name, type, date, content) VALUES (?, ?, ?, ?)",
               (name, type, creation_date, content))
     conn.commit()
     conn.close()
@@ -77,7 +77,7 @@ def add_document(name, type, creation_date, content):
 def get_client_id(client_name):
     conn = sqlite3.connect('crm.db')
     c = conn.cursor()
-    c.execute("SELECT id FROM Клиенты WHERE ФИО = ?", (client_name,))
+    c.execute("SELECT id FROM Clients WHERE full_name = ?", (client_name,))
     result = c.fetchone()
     conn.close()
     return result[0] if result else None
@@ -86,7 +86,7 @@ def get_client_id(client_name):
 def get_product_article(product_name):
     conn = sqlite3.connect('crm.db')
     c = conn.cursor()
-    c.execute("SELECT Артикул FROM Товары WHERE Имя = ?", (product_name,))
+    c.execute("SELECT art FROM Products WHERE name = ?", (product_name,))
     result = c.fetchone()
     conn.close()
     return result[0] if result else None
@@ -95,7 +95,7 @@ def get_product_article(product_name):
 def get_product_id(product_name):
     conn = sqlite3.connect('crm.db')
     c = conn.cursor()
-    c.execute("SELECT id FROM Товары WHERE Имя = ?", (product_name,))
+    c.execute("SELECT id FROM Products WHERE name = ?", (product_name,))
     result = c.fetchone()
     conn.close()
     return result[0] if result else None
@@ -123,26 +123,19 @@ def add_order(client_name, product_name, admin_login, status):
     admin_id = get_admin_id(admin_login)
     conn = sqlite3.connect('crm.db')
     c = conn.cursor()
-    c.execute("INSERT INTO Заказы (Клиент_id, Товар_арт, admin_id, Статус) VALUES (?, ?, ?, ?)",
+    c.execute("INSERT INTO Orders (client_id, product_art, admin_id, status) VALUES (?, ?, ?, ?)",
               (client_id, product_article, admin_id, status))
     conn.commit()
     conn.close()
 
-def add_warehouse_product(product_name, warehouse_name, sum):
+def add_warehouse_product(product_name, warehouse_name, quantity):
     product_id = get_product_id(product_name)
     warehouse_id = get_warehouse_id(warehouse_name)
     conn = sqlite3.connect('crm.db')
     c = conn.cursor()
-    c.execute("INSERT INTO Товар_Склад (Товар_id, Склад_id, Количество) VALUES (?, ?, ?)",
-              (product_id, warehouse_id, sum))
+    c.execute("INSERT INTO Product_Warehouse (product_id, warehouse_id, quantity) VALUES (?, ?, ?)",
+              (product_id, warehouse_id, quantity))
     conn.commit()
     conn.close()
 
-# add_product('Телефон', 'Электроника', '4GB RAM, 64GB ROM', 'phone.jpg')
-# add_admin('admin', 'admin', 'superuser')
-# add_order('Pohan', 'Телефон', 'admin', 'Заказ собирается')
-# add_category('Молочная продукция')
-# add_product('Молоко', 'Молочная продукция', 'бутылка', '1.jpg', '1')
-# add_product('Телефон', 'Электроника', '4GB RAM, 64GB ROM', 'phone.jpg')
-# add_order('Johan', 'Телефон', 'admin', 'Создан')
-# add_client('Johan', 'Moscow', '+375298888888')
+

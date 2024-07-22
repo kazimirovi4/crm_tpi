@@ -69,11 +69,11 @@ class Ui_Dialog(object):
         conn = sqlite3.connect('crm.db')
         c = conn.cursor()
         query = '''
-            SELECT Заказы.id, Клиенты.ФИО, Заказы.Товар_арт, admins.id, Заказы.Дата_создания, Заказы.Время_создания, Заказы.Статус
-            FROM Заказы
-            JOIN Клиенты ON Заказы.Клиент_id = Клиенты.id
-            JOIN admins ON Заказы.admin_id = admins.id
-            JOIN Товары ON Заказы.Товар_арт = Товары.Артикул
+            SELECT Orders.id, Clients.full_name, Orders.product_art, admins.id, Orders.date, Orders.time, Orders.status
+            FROM Orders
+            JOIN Clients ON Orders.client_id = Clients.id
+            JOIN admins ON Orders.admin_id = admins.id
+            JOIN Products ON Orders.product_art = Products.art
             '''
         c.execute(query)
         rows = c.fetchall()

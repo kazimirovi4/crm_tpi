@@ -114,23 +114,23 @@ class Ui_Dialog(object):
         c = conn.cursor()
 
         if index == 0:
-            c.execute('SELECT * FROM Товары')
+            c.execute('SELECT * FROM Products')
             columns = ["ID Товара", "Наименование товара", "Артикул", "Категория", "Цена", "Характеристики", "Картинка", "Склад_id"]
             columns_2 = ["Наименование товара", "Категория", "Цена", "Характеристики", "Картинка", "Склад_id"]
         elif index == 1:
-            c.execute('SELECT * FROM Склады')
+            c.execute('SELECT * FROM Warehouses')
             columns = ["ID Склада", "Название", "Адрес", "Местоположение"]
             columns_2 = ["Название", "Адрес", "Местоположение"]
         elif index == 2:
-            c.execute('SELECT * FROM Клиенты')
+            c.execute('SELECT * FROM Clients')
             columns = ["ID клиента", "ФИО", "Адрес", "Телефон"]
             columns_2 = ["ФИО", "Адрес", "Телефон"]
         elif index == 3:
-            c.execute('SELECT * FROM Документы')
+            c.execute('SELECT * FROM Documents')
             columns = ["ID документа", "Название", "Тип", "Дата создания", "Описание"]
             columns_2 = ["Название", "Тип", "Дата создания", "Описание"]
         elif index == 4:
-            c.execute('SELECT * FROM Товар_Склад')
+            c.execute('SELECT * FROM Product_Warehouse')
             columns = ["ID", "Товар_id", "Склад_id", "Количество"]
             columns_2 = ["Товар_id", "Склад_id", "Количество"]
 
@@ -182,13 +182,13 @@ class Ui_Dialog(object):
         conn = sqlite3.connect('crm.db')
         c = conn.cursor()
         if index == 0:
-            c.execute("DELETE FROM Товары WHERE ID = ?", (item_id,))
+            c.execute("DELETE FROM Products WHERE id = ?", (item_id,))
         elif index == 1:
-            c.execute("DELETE FROM Склады WHERE ID = ?", (item_id,))
+            c.execute("DELETE FROM Warehouses WHERE id = ?", (item_id,))
         elif index == 2:
-            c.execute("DELETE FROM Клиенты WHERE ID = ?", (item_id,))
+            c.execute("DELETE FROM Clients WHERE id = ?", (item_id,))
         elif index == 3:
-            c.execute("DELETE FROM Документы WHERE ID = ?", (item_id,))
+            c.execute("DELETE FROM Documents WHERE id = ?", (item_id,))
         conn.commit()
         conn.close()
         self.load_data()

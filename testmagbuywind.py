@@ -153,12 +153,12 @@ class Ui_Dialog(object):
         c = conn.cursor()
 
         c.execute('''
-            SELECT Товары.Артикул, Товары.Имя, Товары.Цена, Категории.Имя, Товары.Характеристики, Товары.Картинка, 
-            Склады.Название, Товар_Склад.Количество
-            FROM Товары
-            JOIN Категории ON Товары.Категория_id = Категории.id
-            JOIN Склады ON Товар_Склад.Склад_id = Склады.id
-            JOIN Товар_Склад ON Товары.id = Товар_Склад.Товар_id
+            SELECT Products.art, Products.name, Products.price, Categories.name, Products.characteristics, Products.picture, 
+            Warehouses.name, Product_Warehouse.quantity
+            FROM Products
+            JOIN Categories ON Products.category_id = Categories.id
+            JOIN Warehouses ON Товар_Склад.Склад_id = Warehouses.id
+            JOIN Product_Warehouse ON Products.id = Product_Warehouse.product_id
             ''')
         rows = c.fetchall()
         conn.close()
@@ -282,9 +282,9 @@ class Ui_Dialog(object):
             quantity = self.tableWidget.item(row, 7).text()
 
             c.execute('''
-                UPDATE Товар_Склад
-                SET Количество = ?
-                WHERE Товар_id = (SELECT id FROM Товары WHERE Артикул = ?)
+                UPDATE Product_Warehouse
+                SET quantity = ?
+                WHERE product_id = (SELECT id FROM Products WHERE art = ?)
             ''', (quantity, art))
 
         conn.commit()
@@ -323,7 +323,7 @@ class Ui_Dialog(object):
             quantity = self.tableWidget_2.item(row, 7).text()
 
             c.execute('''
-                INSERT INTO Заказы (Клиент_id, Товар_арт, admin_id, Статус)
+                INSERT INTO Orders (client_id, product_art, admin_id, status)
                 VALUES (?, ?, ?, ?)
             ''', (client_id, art, admin_id, "New"))
 
@@ -363,14 +363,14 @@ class Ui_Dialog(object):
             quantity = int(self.tableWidget_2.item(row, 7).text())
 
             c.execute('''
-                UPDATE Товар_Склад
-                SET Количество = Количество - ?
-                WHERE Товар_id = (SELECT id FROM Товары WHERE Артикул = ?) AND Склад_id = (SELECT id FROM Склады WHERE Название = ?)
+                UPDATE Product_Warehouse
+                SET quantity = quantity - ?
+                WHERE product_id = (SELECT id FROM Products WHERE art = ?) AND warehouse_id = (SELECT id FROM Warehouses WHERE name = ?)
             ''', (quantity, art, warehouse_from))
 
             c.execute('''
-                SELECT Количество FROM Товар_Склад
-                WHERE Товар_id = (SELECT id FROM Товары WHERE Артикул = ?) AND Склад_id = (SELECT id FROM Склады WHERE Название = ?)
+                SELECT quantity FROM Product_Warehouse
+                WHERE product_id = (SELECT id FROM Products WHERE art = ?) AND warehouse_id = (SELECT id FROM Warehouses WHERE name = ?)
             ''', (art, warehouse_to))
 
             result = c.fetchone()
@@ -378,15 +378,15 @@ class Ui_Dialog(object):
             if result:
 
                 c.execute('''
-                    UPDATE Товар_Склад
-                    SET Количество = Количество + ?
-                    WHERE Товар_id = (SELECT id FROM Товары WHERE Артикул = ?) AND Склад_id = (SELECT id FROM Склады WHERE Название = ?)
+                    UPDATE Product_Warehouse
+                    SET quantity = quantity + ?
+                    WHERE product_id = (SELECT id FROM Products WHERE art = ?) AND warehouse_id = (SELECT id FROM Warehouses WHERE name = ?)
                 ''', (quantity, art, warehouse_to))
             else:
 
                 c.execute('''
-                    INSERT INTO Товар_Склад (Товар_id, Склад_id, Количество)
-                    VALUES ((SELECT id FROM Товары WHERE Артикул = ?), (SELECT id FROM Склады WHERE Название = ?), ?)
+                    INSERT INTO Product_Warehouse (product_id, warehouse_id, quantity)
+                    VALUES ((SELECT id FROM Products WHERE art = ?), (SELECT id FROM Warehouses WHERE name = ?), ?)
                 ''', (art, warehouse_to, quantity))
 
         conn.commit()
@@ -404,9 +404,9 @@ class Ui_Dialog(object):
 
 
             c.execute('''
-                UPDATE Товар_Склад
-                SET Количество = Количество - ?
-                WHERE Товар_id = (SELECT id FROM Товары WHERE Артикул = ?) AND Склад_id = (SELECT id FROM Склады WHERE Название = ?)
+                UPDATE Product_Warehouse
+                SET quantity = quantity - ?
+                WHERE product_id = (SELECT id FROM Products WHERE art = ?) AND warehouse_id = (SELECT id FROM Warehouses WHERE name = ?)
             ''', (quantity, art, warehouse_from))
 
         conn.commit()
@@ -424,9 +424,9 @@ class Ui_Dialog(object):
 
 
             c.execute('''
-                SELECT id, Количество
-                FROM Товар_Склад
-                WHERE Товар_id = (SELECT id FROM Товары WHERE Артикул = ?) AND Склад_id = (SELECT id FROM Склады WHERE Название = ?)
+                SELECT id, quantity
+                FROM Product_Warehouse
+                WHERE product_id = (SELECT id FROM Products WHERE art = ?) AND warehouse_id = (SELECT id FROM Warehouses WHERE name = ?)
             ''', (art, warehouse_to))
             result = c.fetchone()
 
@@ -435,15 +435,15 @@ class Ui_Dialog(object):
                 current_quantity = result[1]
                 new_quantity = current_quantity + additional_quantity
                 c.execute('''
-                    UPDATE Товар_Склад
-                    SET Количество = ?
+                    UPDATE Product_Warehouse
+                    SET quantity = ?
                     WHERE id = ?
                 ''', (new_quantity, result[0]))
             else:
 
                 c.execute('''
-                    INSERT INTO Товар_Склад (Товар_id, Склад_id, Количество)
-                    VALUES ((SELECT id FROM Товары WHERE Артикул = ?), (SELECT id FROM Склады WHERE Название = ?), ?)
+                    INSERT INTO Product_Warehouse (product_id, warehouse_id, quantity)
+                    VALUES ((SELECT id FROM Products WHERE art = ?), (SELECT id FROM Warehouses WHERE name = ?), ?)
                 ''', (art, warehouse_to, additional_quantity))
 
         conn.commit()
