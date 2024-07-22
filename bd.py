@@ -9,34 +9,32 @@ c = conn.cursor()
 c.execute('''CREATE TABLE IF NOT EXISTS admins
                  (id INTEGER PRIMARY KEY AUTOINCREMENT, login VARCHAR UNIQUE, pass VARCHAR, level VARCHAR)''')
 
-c.execute('''CREATE TABLE IF NOT EXISTS Категории
-                 (id INTEGER PRIMARY KEY AUTOINCREMENT, Имя VARCHAR)''')
+c.execute('''CREATE TABLE IF NOT EXISTS Categories
+                 (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR)''')
 
-c.execute('''CREATE TABLE IF NOT EXISTS Товары
-                 (id INTEGER PRIMARY KEY AUTOINCREMENT, Имя VARCHAR, Артикул VARCHAR UNIQUE,
-                 Категория_id INTEGER, Цена REAL, Характеристики VARCHAR, Картинка VARCHAR, Склад_id VARCHAR,
-                 FOREIGN KEY(Категория_id) REFERENCES Категории(id), FOREIGN KEY(Склад_id) REFERENCES Склады(id))''')
+c.execute('''CREATE TABLE IF NOT EXISTS Products
+                 (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR, art VARCHAR UNIQUE,
+                 category_id INTEGER, price REAL, characteristics VARCHAR, picture VARCHAR, warehouse_id VARCHAR,
+                 FOREIGN KEY(category_id) REFERENCES Categories(id), FOREIGN KEY(warehouse_id) REFERENCES Warehouses(id))''')
 
-# c.execute('''DROP TABLE Товары''')
+c.execute('''CREATE TABLE IF NOT EXISTS Warehouses
+                 (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR , address VARCHAR, coordinates VARCHAR)''')
 
-c.execute('''CREATE TABLE IF NOT EXISTS Склады
-                 (id INTEGER PRIMARY KEY AUTOINCREMENT, Название VARCHAR , Адрес VARCHAR, Координаты VARCHAR)''')
+c.execute('''CREATE TABLE IF NOT EXISTS Clients
+                 (id INTEGER PRIMARY KEY AUTOINCREMENT, full_name VARCHAR, address VARCHAR, phone VARCHAR)''')
 
-c.execute('''CREATE TABLE IF NOT EXISTS Клиенты
-                 (id INTEGER PRIMARY KEY AUTOINCREMENT, ФИО VARCHAR, Адрес VARCHAR, Телефон VARCHAR)''')
+c.execute('''CREATE TABLE IF NOT EXISTS Orders
+                 (id INTEGER PRIMARY KEY AUTOINCREMENT, client_id VARCHAR, product_art VARCHAR, admin_id VARCHAR, 
+                 date DEFAULT CURRENT_DATE, time DEFAULT CURRENT_TIME, status VARCHAR, FOREIGN KEY(client_id) REFERENCES Clients(id), 
+                 FOREIGN KEY(admin_id) REFERENCES admins(id), FOREIGN KEY(product_art) REFERENCES Products(art))''')
 
-c.execute('''CREATE TABLE IF NOT EXISTS Заказы
-                 (id INTEGER PRIMARY KEY AUTOINCREMENT, Клиент_id VARCHAR, Товар_арт VARCHAR, admin_id VARCHAR, 
-                 Дата_создания DEFAULT CURRENT_DATE, Время_создания DEFAULT CURRENT_TIME, Статус VARCHAR, FOREIGN KEY(Клиент_id) REFERENCES Клиенты(id), 
-                 FOREIGN KEY(admin_id) REFERENCES admins(id), FOREIGN KEY(Товар_арт) REFERENCES Товары(Артикул))''')
+c.execute('''CREATE TABLE IF NOT EXISTS Documents
+                 (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR, type VARCHAR, date DEFAULT CURRENT_DATE, 
+                 content VARCHAR)''')
 
-c.execute('''CREATE TABLE IF NOT EXISTS Документы
-                 (id INTEGER PRIMARY KEY AUTOINCREMENT, Название VARCHAR, Тип VARCHAR, Дата_создания DATETIME, 
-                 Содержание VARCHAR)''')
-
-c.execute('''CREATE TABLE IF NOT EXISTS Товар_Склад
-                 (id INTEGER PRIMARY KEY AUTOINCREMENT, Товар_id VARCHAR, Склад_id VARCHAR, Количество INTEGER,
-                 FOREIGN KEY(Товар_id) REFERENCES Товары(id), FOREIGN KEY(Склад_id) REFERENCES Склады(id))''')
+c.execute('''CREATE TABLE IF NOT EXISTS Product_Warehouse
+                 (id INTEGER PRIMARY KEY AUTOINCREMENT, product_id VARCHAR, warehouse_id VARCHAR, quantity INTEGER,
+                 FOREIGN KEY(product_id) REFERENCES Products(id), FOREIGN KEY(warehouse_id) REFERENCES Warehouses(id))''')
 
 conn.commit()
 conn.close()
