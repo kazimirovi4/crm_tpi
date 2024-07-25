@@ -13,6 +13,7 @@ class Ui_Dialog(object):
         self.pushButton_2 = QtWidgets.QPushButton(Dialog)
         self.pushButton_2.setGeometry(QtCore.QRect(320, 50, 181, 71))
         self.pushButton_2.setObjectName("pushButton_2")
+        self.pushButton_2.clicked.connect(self.load_data)
         self.pushButton_3 = QtWidgets.QPushButton(Dialog)
         self.pushButton_3.setGeometry(QtCore.QRect(580, 50, 181, 71))
         self.pushButton_3.setObjectName("pushButton_3")
@@ -48,7 +49,7 @@ class Ui_Dialog(object):
         _translate = QtCore.QCoreApplication.translate
         Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
         self.pushButton.setText(_translate("Dialog", "Добавить"))
-        self.pushButton_2.setText(_translate("Dialog", "***"))
+        self.pushButton_2.setText(_translate("Dialog", "Обновить таблицу"))
         self.pushButton_3.setText(_translate("Dialog", "***"))
         self.pushButton_4.setText(_translate("Dialog", "Новая транзакция"))
         self.lineEdit.setPlaceholderText(_translate("Dialog", "Поиск транзакций"))
@@ -69,7 +70,7 @@ class Ui_Dialog(object):
         conn = sqlite3.connect('crm.db')
         c = conn.cursor()
         query = '''
-            SELECT Orders.id, Clients.full_name, Orders.product_art, admins.id, Orders.date, Orders.time, Orders.status
+            SELECT Orders.id, Clients.full_name, Orders.product_art, admins.login, Orders.date, Orders.time, Orders.status
             FROM Orders
             JOIN Clients ON Orders.client_id = Clients.id
             JOIN admins ON Orders.admin_id = admins.id

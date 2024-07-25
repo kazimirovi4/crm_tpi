@@ -1,6 +1,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 import sqlite3
 import openpyxl
+from add_data import handle_transfer, handle_sale_or_writeoff, handle_reception
 
 
 class Ui_Dialog(object):
@@ -50,6 +51,7 @@ class Ui_Dialog(object):
         self.pushButton = QtWidgets.QPushButton(Dialog)
         self.pushButton.setGeometry(QtCore.QRect(670, 270, 141, 28))
         self.pushButton.setObjectName("pushButton")
+        self.pushButton.clicked.connect(self.refresh_data)
 
         self.tableWidget = QtWidgets.QTableWidget(Dialog)
         self.tableWidget.setGeometry(QtCore.QRect(30, 310, 1051, 271))
@@ -74,6 +76,8 @@ class Ui_Dialog(object):
         self.pushButton_3 = QtWidgets.QPushButton(Dialog)
         self.pushButton_3.setGeometry(QtCore.QRect(870, 870, 93, 28))
         self.pushButton_3.setObjectName("pushButton_3")
+        self.pushButton_3.clicked.connect(self.cancel_action)
+
         self.pushButton_4 = QtWidgets.QPushButton(Dialog)
         self.pushButton_4.setGeometry(QtCore.QRect(990, 870, 93, 28))
         self.pushButton_4.setObjectName("pushButton_4")
@@ -108,7 +112,6 @@ class Ui_Dialog(object):
         self.total_label.setText("Итоговая стоимость: 0")
         self.total_label.setStyleSheet("font-size: 16px;")
 
-        self.lineEdit.setPlaceholderText("Ответственное лицо")
         self.lineEdit_2.setPlaceholderText("Фильтр")
         self.lineEdit_3.setPlaceholderText("От")
         self.lineEdit_4.setPlaceholderText("До")
@@ -116,7 +119,8 @@ class Ui_Dialog(object):
         self.lineEdit = QtWidgets.QLineEdit(Dialog)
         self.lineEdit.setGeometry(QtCore.QRect(30, 150, 211, 31))
         self.lineEdit.setObjectName("lineEdit")
-        self.lineEdit.setPlaceholderText("Ответственное лицо")
+        self.lineEdit.setText("admin")
+
 
         self.retranslateUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
@@ -130,6 +134,17 @@ class Ui_Dialog(object):
         self.tableWidget.cellDoubleClicked.connect(self.copy_to_tableWidget_2)
         self.pushButton_4.clicked.connect(self.save_data)
         self.comboBox_1.currentIndexChanged.connect(self.update_ui_based_on_operation)
+
+        self.comboBox_4 = QtWidgets.QComboBox(Dialog)
+        self.comboBox_4.setGeometry(QtCore.QRect(450, 30, 211, 31))
+        self.comboBox_4.setObjectName("comboBox_4")
+
+        self.label_4 = QtWidgets.QLabel(Dialog)
+        self.label_4.setGeometry(QtCore.QRect(670, 30, 211, 31))
+        self.label_4.setObjectName("label_4")
+        self.label_4.setText("Клиент")
+        self.load_clients()
+
 
     def resize_table_columns(self, table):
         table.resizeColumnsToContents()
@@ -157,7 +172,7 @@ class Ui_Dialog(object):
             Warehouses.name, Product_Warehouse.quantity
             FROM Products
             JOIN Categories ON Products.category_id = Categories.id
-            JOIN Warehouses ON Товар_Склад.Склад_id = Warehouses.id
+            JOIN Warehouses ON Product_Warehouse.warehouse_id = Warehouses.id
             JOIN Product_Warehouse ON Products.id = Product_Warehouse.product_id
             ''')
         rows = c.fetchall()
@@ -169,6 +184,18 @@ class Ui_Dialog(object):
             for col_num, data in enumerate(row_data):
                 item = QtWidgets.QTableWidgetItem(str(data))
                 self.tableWidget.setItem(row_num, col_num, item)
+
+    def load_clients(self):
+        conn = sqlite3.connect('crm.db')
+        c = conn.cursor()
+        c.execute('SELECT id, full_name FROM Clients')
+        clients = c.fetchall()
+        for client_id, client_name in clients:
+            self.comboBox_4.addItem(client_name, client_id)
+            self.comboBox_4.setCurrentIndex(-1)
+        conn.close()
+
+
 
     def copy_to_tableWidget_2(self, row, column):
         row_data = []
@@ -273,38 +300,22 @@ class Ui_Dialog(object):
 
         wb.save("output.xlsx")
 
-    def update_database(self):
-        conn = sqlite3.connect('crm.db')
-        c = conn.cursor()
-
-        for row in range(self.tableWidget.rowCount()):
-            art = self.tableWidget.item(row, 0).text()
-            quantity = self.tableWidget.item(row, 7).text()
-
-            c.execute('''
-                UPDATE Product_Warehouse
-                SET quantity = ?
-                WHERE product_id = (SELECT id FROM Products WHERE art = ?)
-            ''', (quantity, art))
-
-        conn.commit()
-        conn.close()
 
     def save_data(self):
         operation_type = self.comboBox_1.currentText()
 
         if operation_type == "Перемещение":
-            self.handle_transfer()
+            handle_transfer(self.comboBox_2, self.comboBox_3, self.tableWidget_2)
         elif operation_type == "Продажа":
-            self.handle_sale_or_writeoff()
+            handle_sale_or_writeoff(self.comboBox_2, self.tableWidget_2)
         elif operation_type == "Списание":
-            self.handle_sale_or_writeoff()
+            handle_sale_or_writeoff(self.comboBox_2, self.tableWidget_2)
         elif operation_type == "Приёмка":
-            self.handle_reception()
+            handle_reception(self.comboBox_3, self.tableWidget_2)
 
         if self.checkBox.isChecked():
             self.save_to_excel()
-        self.update_database()
+
         self.save_orders_to_database()
         QtWidgets.QMessageBox.information(None, "Сохранение", "Данные успешно сохранены и обновлены в базе данных.")
 
@@ -315,12 +326,11 @@ class Ui_Dialog(object):
         conn = sqlite3.connect('crm.db')
         c = conn.cursor()
 
-        client_id = self.get_current_admin_id()
+        client_id = self.comboBox_4.currentData()
         admin_id = '1'
 
         for row in range(self.tableWidget_2.rowCount()):
             art = self.tableWidget_2.item(row, 0).text()
-            quantity = self.tableWidget_2.item(row, 7).text()
 
             c.execute('''
                 INSERT INTO Orders (client_id, product_art, admin_id, status)
@@ -336,118 +346,44 @@ class Ui_Dialog(object):
         if operation_type == "Перемещение":
             self.comboBox_2.setEnabled(True)
             self.comboBox_3.setEnabled(True)
+            self.comboBox_4.setEnabled(False)
+            self.comboBox_2.setCurrentIndex(-1)
             self.comboBox_3.setCurrentIndex(-1)
-        elif operation_type in ["Продажа", "Списание"]:
+        elif operation_type == "Продажа":
             self.comboBox_2.setEnabled(True)
             self.comboBox_3.setEnabled(False)
+            self.comboBox_4.setEnabled(True)
+            self.comboBox_2.setCurrentIndex(-1)
+            self.comboBox_3.setCurrentIndex(-1)
+        elif operation_type == "Списание":
+            self.comboBox_2.setEnabled(True)
+            self.comboBox_3.setEnabled(False)
+            self.comboBox_4.setEnabled(False)
+            self.comboBox_2.setCurrentIndex(-1)
             self.comboBox_3.setCurrentIndex(-1)
         elif operation_type == "Приёмка":
             self.comboBox_2.setEnabled(False)
             self.comboBox_3.setEnabled(True)
+            self.comboBox_4.setEnabled(False)
             self.comboBox_2.setCurrentIndex(-1)
+            self.comboBox_3.setCurrentIndex(-1)
         else:
             self.comboBox_2.setEnabled(True)
             self.comboBox_3.setEnabled(True)
+            self.comboBox_4.setEnabled(False)
             self.comboBox_2.setCurrentIndex(-1)
             self.comboBox_3.setCurrentIndex(-1)
 
-    def handle_transfer(self):
-        warehouse_from = self.comboBox_2.currentText()
-        warehouse_to = self.comboBox_3.currentText()
+    def refresh_data(self):
+        self.tableWidget.clearContents()
+        self.tableWidget_2.clearContents()
+        self.tableWidget_2.setRowCount(0)
+        self.load_data()
 
-        conn = sqlite3.connect('crm.db')
-        c = conn.cursor()
-
-        for row in range(self.tableWidget_2.rowCount()):
-            art = self.tableWidget_2.item(row, 0).text()
-            quantity = int(self.tableWidget_2.item(row, 7).text())
-
-            c.execute('''
-                UPDATE Product_Warehouse
-                SET quantity = quantity - ?
-                WHERE product_id = (SELECT id FROM Products WHERE art = ?) AND warehouse_id = (SELECT id FROM Warehouses WHERE name = ?)
-            ''', (quantity, art, warehouse_from))
-
-            c.execute('''
-                SELECT quantity FROM Product_Warehouse
-                WHERE product_id = (SELECT id FROM Products WHERE art = ?) AND warehouse_id = (SELECT id FROM Warehouses WHERE name = ?)
-            ''', (art, warehouse_to))
-
-            result = c.fetchone()
-
-            if result:
-
-                c.execute('''
-                    UPDATE Product_Warehouse
-                    SET quantity = quantity + ?
-                    WHERE product_id = (SELECT id FROM Products WHERE art = ?) AND warehouse_id = (SELECT id FROM Warehouses WHERE name = ?)
-                ''', (quantity, art, warehouse_to))
-            else:
-
-                c.execute('''
-                    INSERT INTO Product_Warehouse (product_id, warehouse_id, quantity)
-                    VALUES ((SELECT id FROM Products WHERE art = ?), (SELECT id FROM Warehouses WHERE name = ?), ?)
-                ''', (art, warehouse_to, quantity))
-
-        conn.commit()
-        conn.close()
-
-    def handle_sale_or_writeoff(self):
-        warehouse_from = self.comboBox_2.currentText()
-
-        conn = sqlite3.connect('crm.db')
-        c = conn.cursor()
-
-        for row in range(self.tableWidget_2.rowCount()):
-            art = self.tableWidget_2.item(row, 0).text()
-            quantity = int(self.tableWidget_2.item(row, 7).text())
-
-
-            c.execute('''
-                UPDATE Product_Warehouse
-                SET quantity = quantity - ?
-                WHERE product_id = (SELECT id FROM Products WHERE art = ?) AND warehouse_id = (SELECT id FROM Warehouses WHERE name = ?)
-            ''', (quantity, art, warehouse_from))
-
-        conn.commit()
-        conn.close()
-
-    def handle_reception(self):
-        warehouse_to = self.comboBox_3.currentText()
-
-        conn = sqlite3.connect('crm.db')
-        c = conn.cursor()
-
-        for row in range(self.tableWidget_2.rowCount()):
-            art = self.tableWidget_2.item(row, 0).text()
-            additional_quantity = int(self.tableWidget_2.item(row, 7).text())
-
-
-            c.execute('''
-                SELECT id, quantity
-                FROM Product_Warehouse
-                WHERE product_id = (SELECT id FROM Products WHERE art = ?) AND warehouse_id = (SELECT id FROM Warehouses WHERE name = ?)
-            ''', (art, warehouse_to))
-            result = c.fetchone()
-
-            if result:
-
-                current_quantity = result[1]
-                new_quantity = current_quantity + additional_quantity
-                c.execute('''
-                    UPDATE Product_Warehouse
-                    SET quantity = ?
-                    WHERE id = ?
-                ''', (new_quantity, result[0]))
-            else:
-
-                c.execute('''
-                    INSERT INTO Product_Warehouse (product_id, warehouse_id, quantity)
-                    VALUES ((SELECT id FROM Products WHERE art = ?), (SELECT id FROM Warehouses WHERE name = ?), ?)
-                ''', (art, warehouse_to, additional_quantity))
-
-        conn.commit()
-        conn.close()
+    def cancel_action(self):
+        self.tableWidget_2.clearContents()
+        self.tableWidget_2.setRowCount(0)
+        self.load_data()
 
 
 if __name__ == "__main__":

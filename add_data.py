@@ -2,6 +2,7 @@ import sqlite3
 import uuid
 
 
+
 def get_category_id(category_name):
     conn = sqlite3.connect('crm.db')
     c = conn.cursor()
@@ -138,4 +139,120 @@ def add_warehouse_product(product_name, warehouse_name, quantity):
     conn.commit()
     conn.close()
 
+def handle_transfer(comboBox_2, comboBox_3, tableWidget_2):
+    warehouse_from = comboBox_2.currentText()
+    warehouse_to = comboBox_3.currentText()
 
+    conn = sqlite3.connect('crm.db')
+    c = conn.cursor()
+
+    for row in range(tableWidget_2.rowCount()):
+        art = tableWidget_2.item(row, 0).text()
+        quantity = int(tableWidget_2.item(row, 7).text())
+
+        c.execute('''
+            UPDATE Product_Warehouse
+            SET quantity = quantity - ?
+            WHERE product_id = (SELECT id FROM Products WHERE art = ?) AND warehouse_id = (SELECT id FROM Warehouses WHERE name = ?)
+        ''', (quantity, art, warehouse_from))
+
+        c.execute('''
+            SELECT quantity FROM Product_Warehouse
+            WHERE product_id = (SELECT id FROM Products WHERE art = ?) AND warehouse_id = (SELECT id FROM Warehouses WHERE name = ?)
+        ''', (art, warehouse_to))
+
+        result = c.fetchone()
+
+        if result:
+            c.execute('''
+                UPDATE Product_Warehouse
+                SET quantity = quantity + ?
+                WHERE product_id = (SELECT id FROM Products WHERE art = ?) AND warehouse_id = (SELECT id FROM Warehouses WHERE name = ?)
+            ''', (quantity, art, warehouse_to))
+        else:
+            c.execute('''
+                INSERT INTO Product_Warehouse (product_id, warehouse_id, quantity)
+                VALUES ((SELECT id FROM Products WHERE art = ?), (SELECT id FROM Warehouses WHERE name = ?), ?)
+            ''', (art, warehouse_to, quantity))
+
+    conn.commit()
+    conn.close()
+
+def handle_sale_or_writeoff(comboBox_2, tableWidget_2):
+    warehouse_from = comboBox_2.currentText()
+
+    conn = sqlite3.connect('crm.db')
+    c = conn.cursor()
+
+    for row in range(tableWidget_2.rowCount()):
+        art = tableWidget_2.item(row, 0).text()
+        quantity = int(tableWidget_2.item(row, 7).text())
+
+        if warehouse_from == "Со всех складов":
+            warehouses = tableWidget_2.item(row, 6).text().split(',')
+            for warehouse in warehouses:
+                c.execute('''
+                        UPDATE Product_Warehouse
+                        SET quantity = quantity - ?
+                        WHERE product_id = (SELECT id FROM Products WHERE art = ?) AND warehouse_id = (SELECT id FROM Warehouses WHERE name = ?)
+                    ''', (quantity, art, warehouse.strip()))
+        else:
+            c.execute('''
+                    UPDATE Product_Warehouse
+                    SET quantity = quantity - ?
+                    WHERE product_id = (SELECT id FROM Products WHERE art = ?) AND warehouse_id = (SELECT id FROM Warehouses WHERE name = ?)
+                ''', (quantity, art, warehouse_from))
+
+    conn.commit()
+    conn.close()
+
+def handle_reception(comboBox_3, tableWidget_2):
+    warehouse_to = comboBox_3.currentText()
+
+    conn = sqlite3.connect('crm.db')
+    c = conn.cursor()
+
+    for row in range(tableWidget_2.rowCount()):
+        art = tableWidget_2.item(row, 0).text()
+        additional_quantity = int(tableWidget_2.item(row, 7).text())
+
+        c.execute('''
+            SELECT id, quantity
+            FROM Product_Warehouse
+            WHERE product_id = (SELECT id FROM Products WHERE art = ?) AND warehouse_id = (SELECT id FROM Warehouses WHERE name = ?)
+        ''', (art, warehouse_to))
+        result = c.fetchone()
+
+        if result:
+            current_quantity = result[1]
+            new_quantity = current_quantity + additional_quantity
+            c.execute('''
+                UPDATE Product_Warehouse
+                SET quantity = ?
+                WHERE id = ?
+            ''', (new_quantity, result[0]))
+        else:
+            c.execute('''
+                INSERT INTO Product_Warehouse (product_id, warehouse_id, quantity)
+                VALUES ((SELECT id FROM Products WHERE art = ?), (SELECT id FROM Warehouses WHERE name = ?), ?)
+            ''', (art, warehouse_to, additional_quantity))
+
+    conn.commit()
+    conn.close()
+
+def update_database_buywind(tableWidget):
+    conn = sqlite3.connect('crm.db')
+    c = conn.cursor()
+
+    for row in range(tableWidget.rowCount()):
+        art = tableWidget.item(row, 0).text()
+        quantity = tableWidget.item(row, 7).text()
+
+        c.execute('''
+            UPDATE Product_Warehouse
+            SET quantity = ?
+            WHERE product_id = (SELECT id FROM Products WHERE art = ?)
+        ''', (quantity, art))
+
+    conn.commit()
+    conn.close()
